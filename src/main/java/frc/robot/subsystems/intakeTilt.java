@@ -16,8 +16,7 @@ public class intakeTilt extends SubsystemBase {
   public double maxRotateSpeed = 1;
   public RotationPositions motorState;
   //defining both motors on the thing
-  public TalonFX tiltA = new TalonFX(0);
-  public TalonFX tiltB = new TalonFX(1);
+  public TalonFX tiltMotor = new TalonFX(0);
   public DutyCycleEncoder encoder = new DutyCycleEncoder(0);
   public PIDController PID = new PIDController(1,0,0);
 
@@ -27,15 +26,53 @@ public class intakeTilt extends SubsystemBase {
   }
   /** Creates a new intakeTilt. */
   public intakeTilt() {
-    tiltA.setNeutralMode(NeutralModeValue.Brake);
-    tiltB.setNeutralMode(NeutralModeValue.Brake);
+    tiltMotor.setNeutralMode(NeutralModeValue.Brake);
     setDefaultCommand(runOnce(()->{
-      tiltA.set(0);
-      tiltB.set(0);
+      tiltMotor.set(0);
     }));
 
   }
+  public enum RotationPositions{
+    //default value at the top
+    up(0),
+    //put down in grab mode 
+    down(0.5);
 
+    public final double position;
+    RotationPositions(double pos){
+      position = pos;
+    }
+  }
+
+  public double getRotateOutput(){
+    double output = PID.calculate(getEncoderValue(), motorState.position);
+    if (output > maxRotateSpeed){
+      output = maxRotateSpeed;
+    }
+    
+    if (output < -maxRotateSpeed){
+      output = -maxRotateSpeed;
+    }
+    return output;
+  }
+
+  public Command rotate(RotationPositions newState){
+    return new RunCommand(()->{
+      motorState = newState;
+      tiltMotor.set(getRotateOutput());
+    }).until(positionReached);
+  }
+  public Command decideRotation(RotationPositions motorState){
+    if (motorState==RotationPositions.up) {
+      return new RunCommand(()->{
+        rotate(RotationPositions.down);
+      });
+    } else {
+      return new RunCommand(()->{
+        rotate(RotationPositions.up);
+    });
+    } 
+  }
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
