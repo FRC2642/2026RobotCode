@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Intermediate;
 import frc.robot.subsystems.Vision;
 
 public class RobotContainer {
@@ -34,7 +35,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController joystick = new CommandXboxController(0);
-
+    public final Intermediate intermediate = new Intermediate();
     public final Vision vision = new Vision();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -53,7 +54,9 @@ public class RobotContainer {
                     .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
-
+        //intermediate toggle
+        joystick.x().onTrue(intermediate.Spin(1));
+        
         joystick.a().whileTrue(vision.print());
 
         // Idle while the robot is disabled. This ensures the configured
