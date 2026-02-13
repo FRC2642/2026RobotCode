@@ -21,9 +21,6 @@ public class intakeTilt extends SubsystemBase {
   public PIDController PID = new PIDController(1,0,0);
 
   public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.01);
-  public double getEncoderValue(){
-    return encoder.get();
-  }
   /** Creates a new intakeTilt. */
   public intakeTilt() {
     tiltMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -43,7 +40,9 @@ public class intakeTilt extends SubsystemBase {
       position = pos;
     }
   }
-
+  public double getEncoderValue(){
+    return encoder.get();
+  }
   public double getRotateOutput(){
     double output = PID.calculate(getEncoderValue(), motorState.position);
     if (output > maxRotateSpeed){
