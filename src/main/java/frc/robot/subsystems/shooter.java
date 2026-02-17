@@ -15,6 +15,9 @@ public class shooter extends SubsystemBase {
   public TalonFX topMotor = new TalonFX(0);
   public TalonFX bottonMotor = new TalonFX(0);
   public TalonFX intakeShooterMotor = new TalonFX(0);
+  public Distance shooterSpeed;
+  public static double position;
+  public Distance sped = Distance.upper;
   public double topShooterSpeed = 0.00;
   public double bottonShooterSpeed = 0.00;
   /** Creates a new shooter. */
@@ -28,10 +31,12 @@ bottonMotor.set(0);
 intakeShooterMotor.set(0);
 }));
 }
-public Command shoot(){
+public Command shoot(Distance shooterspeed){
   return run(()-> {
-topMotor.set(0*topShooterSpeed);
+topMotor.set(topShooterSpeed*0);
 bottonMotor.set(0*bottonShooterSpeed);
+// to use a enum I probley need a if statment but I don't know if we're going to be doing anything like that
+//so I guess this will stay not completed. YAY.
   });
 }
 public Command intakeShoot(){
@@ -39,9 +44,19 @@ public Command intakeShoot(){
 intakeShooterMotor.set(0);
   });
 }
+public enum Distance{
 
-  @Override
+upper(1),
+lowwer(0);
+//the names are for the motors they corrolate to I was running out of ways to discribe top and bottom
+public final double position;
+Distance(double pos){
+position = pos; 
+}
+
+
+  /*@Override
   public void periodic() {
     // This method will be called once per scheduler run
-  }
-}
+  }*/
+}}
