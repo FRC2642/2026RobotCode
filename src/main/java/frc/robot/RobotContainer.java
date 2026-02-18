@@ -21,6 +21,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intermediate;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.intakeTilt;
+import frc.robot.subsystems.intakeTilt.RotationPositions;
 
 public class RobotContainer {
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -39,7 +41,7 @@ public class RobotContainer {
     public final Intermediate intermediate = new Intermediate();
     public final Vision vision = new Vision();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-
+    public final intakeTilt intakeTilt = new intakeTilt();
     public RobotContainer() {
         configureBindings();
 
@@ -62,7 +64,7 @@ public class RobotContainer {
         joystick.x().onTrue(intermediate.Spin(1));
         
         joystick.a().whileTrue(vision.print());
-
+        joystick.y().onTrue(intakeTilt.decideRotation(intakeTilt.motorState));
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
         final var idle = new SwerveRequest.Idle();
