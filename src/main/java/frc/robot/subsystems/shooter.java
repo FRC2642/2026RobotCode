@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,11 +16,23 @@ public class shooter extends SubsystemBase {
   public TalonFX topMotor = new TalonFX(0);
   public TalonFX bottonMotor = new TalonFX(0);
   public TalonFX intakeShooterMotor = new TalonFX(0);
-  public Distance shooterSpeed;
+  //the three motors, named based on hight
+  public Distance distance;
+  // fist distance is enum name second is verable name
   public static double position;
-  public Distance sped = Distance.upper;
+  // 
+  public final double velocity(){
+  //       gravity     dist from goal goalY-startY                                                allat times this                                           
+  return(((-32.174/2)*((Math.pow(distance, 2))/(6.16-1.32-(Math.sin(shootAngle)/Math.cos(shootAngle))*distance)*(Math.pow(Math.cos(shootAngle), 2)))));
+  // x is place holder thing */
+}
+  public static double shootAngle = 0.436332;
+  public Distance sped = Distance.at5feet;
   public double topShooterSpeed = 0.00;
   public double bottonShooterSpeed = 0.00;
+  public double wheelDiameter;
+  public double RPM = (velocity() / (Math.PI*wheelDiameter));
+  public double rotationSpeed = 1/RPM;
   /** Creates a new shooter. */
   public shooter() {
 topMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -31,7 +44,7 @@ bottonMotor.set(0);
 intakeShooterMotor.set(0);
 }));
 }
-public Command shoot(Distance shooterspeed){
+public Command shoot(Distance Distance){
   return run(()-> {
 topMotor.set(topShooterSpeed*0);
 bottonMotor.set(0*bottonShooterSpeed);
@@ -46,8 +59,9 @@ intakeShooterMotor.set(0);
 }
 public enum Distance{
 
-upper(1),
-lowwer(0);
+at5feet(1),
+at8feet(0),
+at10feet(0);
 //the names are for the motors they corrolate to I was running out of ways to discribe top and bottom
 public final double position;
 Distance(double pos){
@@ -59,4 +73,4 @@ position = pos;
   public void periodic() {
     // This method will be called once per scheduler run
   }*/
-}}
+}
