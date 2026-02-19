@@ -4,34 +4,45 @@
 
 package frc.robot.subsystems;
 
-import java.lang.reflect.Array;
-
 import org.ejml.equation.Variable;
-import org.ejml.ops.SortCoupledArray_F32;
+
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.RobotContainer;
 
+import edu.wpi.first.math.controller.PIDController;
 
 @SuppressWarnings("unused")
 public class Climby extends SubsystemBase {
     /** Creates a new Climby. */
-    //We need to set the Enum Value
+
+    //We need to decide what the value of these variables should be.
     public double targetHeight = 1000;
     public double digitalRotation = 0;
-    public double rotationSpeed = 5;
-    public double targetEnum = 0;
-    public int arrayIndex = 0;
-    public Trigger positionReached = new Trigger(() -> getDigitalRotation() < 0.01);
+    public double rotationSpeed = 40;
+    public double maxRotationSpeed = 50;
 
+    //I lowkey don't know how this works.
+    public TalonFX climbMotor = new TalonFX(1);
+    public Encoder climbEncoder = new Encoder(0,1);
+    public PIDController PID = new PIDController(1, 0, 0);
+    
+    ;
+
+    public Trigger positionReached = new Trigger(() -> getDigitalRotation() < 0.01);
+    
+    //Yo guys what even is this doing here?
     public Climby(){
   double digitalRotation = 0;
   }
@@ -40,20 +51,20 @@ public class Climby extends SubsystemBase {
   public Command climbUp(){
     return new RunCommand(()->{
       setDigitalRotation(targetHeight);
-      while (getDigitalRotation() >= 0) {
-        setDigitalRotation(getDigitalRotation() - getRotationSpeed());
-      };
-    }).until(positionReached);
+    }).until(positionReached).andThen(new RunCommand(()->{
+       setDigitalRotation(getDigitalRotation() - getRotationSpeed());
+    })).until(positionReached);
   }
  
   //Do it just cuz.
   public double getDigitalRotation(){
-    return digitalRotation;
+    return climbEncoder.get();
   }
 
   public Command setDigitalRotation(double set){
     return new RunCommand(()->{
       digitalRotation = set;
+      climbMotor.set(set);
     });
   }
   
@@ -62,6 +73,15 @@ public class Climby extends SubsystemBase {
   //write it in Enlgish.
   public Integer seventeen(){
     return (16 + 1);
+  }
+
+ //¿Por qué no?
+  public Command doAbsolutelyNothingForNoReasonBecauseWhyNot(){
+    return new RunCommand(()->{
+    //does nothing
+    //Among Us
+    //El cumpleaños de Abraham Lincoln es el 12 de febrero de 1809.
+    });
   }
 
   public double getRotationSpeed(){
@@ -80,16 +100,7 @@ public class Climby extends SubsystemBase {
     }
     return (value);
   }
-
-  //¿Por qué no?
-  public Command nothing(){
-    return new RunCommand(()->{
-    //does nothing
-    //Among Us
-    //El cumpleaños de Abraham Lincoln es el 12 de febrero de 1809.
-    });
-  }
-
+  
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
