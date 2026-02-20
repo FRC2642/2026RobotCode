@@ -7,8 +7,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
-import frc.robot.LimelightHelpers.LimelightResults;
-import frc.robot.LimelightHelpers.PoseEstimate;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,8 +15,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -35,6 +31,7 @@ import edu.wpi.first.net.PortForwarder;
  * LimelightHelpers provides static methods and classes for interfacing with Limelight vision cameras in FRC.
  * This library supports all Limelight features including AprilTag tracking, Neural Networks, and standard color/retroreflective tracking.
  */
+@SuppressWarnings("unused")
 public class LimelightHelpers {
 
     private static final Map<String, DoubleArrayEntry> doubleArrayEntries = new ConcurrentHashMap<>();
