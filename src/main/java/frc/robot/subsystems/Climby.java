@@ -70,7 +70,7 @@ public class Climby extends SubsystemBase {
   
   //This is for whenever you want to use the value seventeen
   //but, like, you forgot how to write it in decimal so you just
-  //write it in Enlgish.
+  //write it in English.
   public Integer seventeen(){
     return (16 + 1);
   }
