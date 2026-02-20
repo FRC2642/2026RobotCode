@@ -17,22 +17,21 @@ public class shooter extends SubsystemBase {
   public TalonFX bottonMotor = new TalonFX(0);
   public TalonFX intakeShooterMotor = new TalonFX(0);
   //the three motors, named based on hight
-  public Distance distance;
+  public shootModes distance;
   // fist distance is enum name second is verable name
   public static double position;
   // 
-  public final double velocity(){
-  //       gravity     dist from goal goalY-startY                                                allat times this                                           
-  return(((-32.174/2)*((Math.pow(distance, 2))/(6.16-1.32-(Math.sin(shootAngle)/Math.cos(shootAngle))*distance)*(Math.pow(Math.cos(shootAngle), 2)))));
-  // x is place holder thing */
-}
+//   public final double velocity(){
+//   //       gravity     dist from goal            goalY-startY                                        allat times this                                           
+//   return(((-9.81/2)*((Math.pow(getDistance, 2))/(1.828-0.4036-(Math.sin(shootAngle)/Math.cos(shootAngle))*distance)*(Math.pow(Math.cos(shootAngle), 2)))));
+//   // x is place holder thing */
+// }
   public static double shootAngle = 0.436332;
-  public Distance sped = Distance.at5feet;
   public double topShooterSpeed = 0.00;
   public double bottonShooterSpeed = 0.00;
   public double wheelDiameter;
-  public double RPM = (velocity() / (Math.PI*wheelDiameter));
-  public double rotationSpeed = 1/RPM;
+ // public double RPM = (velocity() / (Math.PI*wheelDiameter));
+  //public double rotationSpeed = 1/RPM;
   /** Creates a new shooter. */
   public shooter() {
 topMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -44,7 +43,7 @@ bottonMotor.set(0);
 intakeShooterMotor.set(0);
 }));
 }
-public Command shoot(Distance Distance){
+public Command shoot(shootModes Distance){
   return run(()-> {
 topMotor.set(topShooterSpeed*0);
 bottonMotor.set(0*bottonShooterSpeed);
@@ -57,14 +56,14 @@ public Command intakeShoot(){
 intakeShooterMotor.set(0);
   });
 }
-public enum Distance{
+public enum shootModes{
 
-at5feet(1),
+at2meters(1),
 at8feet(0),
 at10feet(0);
 //the names are for the motors they corrolate to I was running out of ways to discribe top and bottom
 public final double position;
-Distance(double pos){
+shootModes(double pos){
 position = pos; 
 }
 
@@ -73,4 +72,4 @@ position = pos;
   public void periodic() {
     // This method will be called once per scheduler run
   }*/
-}
+}}
