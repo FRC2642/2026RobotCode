@@ -41,6 +41,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController joystick = new CommandXboxController(0);
+    private final CommandXboxController auxJoystick = new CommandXboxController(1);
     public final Intermediate intermediate = new Intermediate();
     public final Vision vision = new Vision();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -78,9 +79,7 @@ public class RobotContainer {
             )
         );
 
-
-        joystick.a().whileTrue(vision.print());
-        joystick.y().onTrue(intakeTilt.decideRotation(intakeTilt.motorState));
+        auxJoystick.a().onTrue(intakeTilt.decideRotation(intakeTilt.motorState)); //Toggles the intake between up and down
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
         final var idle = new SwerveRequest.Idle();
