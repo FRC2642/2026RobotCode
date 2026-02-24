@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+@SuppressWarnings("unused")
 public class shooter extends SubsystemBase {
   public TalonFX topMotor = new TalonFX(0);
   public TalonFX bottonMotor = new TalonFX(0);
