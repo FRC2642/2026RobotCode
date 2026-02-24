@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -24,9 +25,10 @@ import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Climby;
 import frc.robot.subsystems.intakeTilt;
 import frc.robot.subsystems.intakeTilt.RotationPositions;
-
 @SuppressWarnings("unused")
+
 public class RobotContainer {
+    private final CommandJoystick buttonBoard = new CommandJoystick(0);
     private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -66,8 +68,10 @@ public class RobotContainer {
         
         joystick.a().whileTrue(vision.print());
         
-        joystick.b().onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
-
+        buttonBoard.button(1).onTrue(Climby.climbUp());
+        buttonBoard.button(2).onTrue(Climby.climbUp().andThen(Climby.climbUp()));
+        buttonBoard.button(3).onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
+        buttonBoard.button(0).onTrue(Climby.climbDown());
 
         joystick.b().whileTrue(
             drivetrain.applyRequest(()->
