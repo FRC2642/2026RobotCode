@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.IntakeSpin;
 import frc.robot.subsystems.Intermediate;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Climby;
@@ -41,10 +42,12 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController joystick = new CommandXboxController(0);
+    private final CommandXboxController auxJoystick = new CommandXboxController(1);
     public final Intermediate intermediate = new Intermediate();
     public final Vision vision = new Vision();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final intakeTilt intakeTilt = new intakeTilt();
+    public final IntakeSpin intakeSpin = new IntakeSpin();
     public RobotContainer() {
         configureBindings();
     }
@@ -80,7 +83,8 @@ public class RobotContainer {
 
 
         joystick.a().whileTrue(vision.print());
-        joystick.y().onTrue(intakeTilt.decideRotation(intakeTilt.motorState));
+        auxJoystick.a().onTrue(intakeTilt.decideRotation(intakeTilt.motorState));
+        auxJoystick.a().onTrue(intakeSpin.decideSpin(intakeSpin.isSpinning));
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
         final var idle = new SwerveRequest.Idle();

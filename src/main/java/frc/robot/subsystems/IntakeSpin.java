@@ -7,18 +7,29 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.intakeTilt.RotationPositions;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 public class IntakeSpin extends SubsystemBase {
+    public Boolean isSpinning = true;
   public TalonFX spinMotor = new TalonFX(0);
-  public IntakeSpin() {
-    setDefaultCommand(runOnce(()->{
-
-      spinMotor.set(0);
-    }));
+  public Command decideSpin(Boolean isSpinning){
+    if (isSpinning ==true) {
+      return new RunCommand(()->{
+        spinToggle(0,false);
+      });
+    } else {
+      return new RunCommand(()->{
+        spinToggle(1,true);
+    });
+    } 
   }
-public Command spin(double speed) { 
-  return run (()-> spinMotor.set(speed));
-}
+  public Command spinToggle(double speed, Boolean newState){
+    return new RunCommand(()->{
+      isSpinning = newState;
+      spinMotor.set((speed));
+    });
+  }
   @Override
   public void periodic() {}
 }
