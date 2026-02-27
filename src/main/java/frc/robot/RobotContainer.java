@@ -16,18 +16,24 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+<<<<<<< HEAD
 import frc.robot.subsystems.Dashboard;
+=======
+import frc.robot.subsystems.IntakeSpin;
+>>>>>>> origin/main
 import frc.robot.subsystems.Intermediate;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Climby;
 import frc.robot.subsystems.intakeTilt;
 import frc.robot.subsystems.intakeTilt.RotationPositions;
-
 @SuppressWarnings("unused")
+
 public class RobotContainer {
+    private final CommandJoystick buttonBoard = new CommandJoystick(0);
     private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -42,11 +48,13 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController joystick = new CommandXboxController(0);
+    private final CommandXboxController auxJoystick = new CommandXboxController(1);
     public final Intermediate intermediate = new Intermediate();
     public final Vision vision = new Vision();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final intakeTilt intakeTilt = new intakeTilt();
     public final Dashboard dash = new Dashboard(vision);
+    public final IntakeSpin intakeSpin = new IntakeSpin();
     public RobotContainer() {
         configureBindings();
     }
@@ -60,7 +68,18 @@ public class RobotContainer {
                 drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-joystick.getRightX() * MaxAngularRate))); // Drive counterclockwise with negative X (left)
-            
+        
+ 
+        //intermediate toggle
+        joystick.x().onTrue(intermediate.Spin(1));
+        
+        joystick.a().whileTrue(vision.print());
+        
+        buttonBoard.button(1).onTrue(Climby.climbUp());
+        buttonBoard.button(2).onTrue(Climby.climbUp().andThen(Climby.climbUp()));
+        buttonBoard.button(3).onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
+        buttonBoard.button(0).onTrue(Climby.climbDown());
+
         joystick.b().whileTrue(
             drivetrain.applyRequest(()->
             drive
@@ -85,6 +104,8 @@ public class RobotContainer {
 
 
 
+        auxJoystick.a().onTrue(intakeTilt.decideRotation(intakeTilt.motorState));
+        auxJoystick.a().onTrue(intakeSpin.decideSpin(intakeSpin.isSpinning));
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
         final var idle = new SwerveRequest.Idle();

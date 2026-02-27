@@ -4,55 +4,60 @@
 
 package frc.robot.subsystems;
 
-import org.ejml.equation.Variable;
-
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj.Encoder;
+import frc.robot.subsystems.intakeTilt.RotationPositions;
+import edu.wpi.first.math.controller.PIDController;
+import org.ejml.equation.Variable;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.RobotContainer;
-
-import edu.wpi.first.math.controller.PIDController;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 @SuppressWarnings("unused")
+
 public class Climby extends SubsystemBase {
     /** Creates a new Climby. */
 
     //We need to decide what the value of these variables should be.
     public double targetHeight = 1000;
-    public double digitalRotation = 0;
-    public double rotationSpeed = 40;
-    public double maxRotationSpeed = 50;
+    public double currentTarget = 0;
+    public double rotationSpeed = 40; 
 
-    //I lowkey don't know how this works.
+    //I probably understand this now.
     public TalonFX climbMotor = new TalonFX(1);
     //public Encoder climbEncoder = new Encoder(0,1);
     public PIDController PID = new PIDController(1, 0, 0);
+    public RotationPositions motorState;
     
-    ;
-
-    public Trigger positionReached = new Trigger(() -> getDigitalRotation() < 0.01);
+    //The two triggers.
+    public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - currentTarget) < 0.01);
     
-    //Yo guys what even is this doing here?
-    public Climby(){
-  double digitalRotation = 0;
+  //I might know what this means.
+  public Climby(){
+    doAbsolutelyNothingForNoReasonBecauseWhyNot();
   }
 
   //This fuction climbs up until it reaches the Target Value, and then goes down to zero.
   public Command climbUp(){
     return new RunCommand(()->{
-      setDigitalRotation(targetHeight);
+      //Do you know where the *up* function goes? That's right! It goes in the *up* hole.
+     currentTarget = targetHeight;
+     climbMotor.set(climbMotorOutput(currentTarget));
     }).until(positionReached).andThen(new RunCommand(()->{
-       setDigitalRotation(getDigitalRotation() - getRotationSpeed());
+
+      //Now it goes back down so that it can humble itself.
+      currentTarget = 0;
+      climbMotor.set(climbMotorOutput(currentTarget));
     })).until(positionReached);
   }
  
@@ -61,17 +66,42 @@ public class Climby extends SubsystemBase {
     return 1;
     //climbEncoder.get();
   }
-
-  public Command setDigitalRotation(double set){
+  public Command climbDown(){
+    //You guessed it! The climb down function goes in the *up* hole.
     return new RunCommand(()->{
-      digitalRotation = set;
-      climbMotor.set(set);
+     setcurrentTarget(targetHeight);
+     climbMotor.set(climbMotorOutput(targetHeight));
+    }).until(positionReached);
+  }
+  
+  public double getEncoderValue(){
+    //I was told it was easier.
+    return 1;
+    //climbEncoder.get();
+  }
+  
+  public double climbMotorOutput(double targetPosition){
+    //Funny math thing that I don't understand.
+    //Just trust them bro it works.
+    return PID.calculate(targetPosition, getEncoderValue());
+  }
+
+  public Command setcurrentTarget(double set){
+    //Make sure to subcribe, unalive that like button, and say bonjour to that notification bell.
+    return new RunCommand(()->{
+      currentTarget = set;
     });
   }
   
+  public Command setClimbMotorSpeed(double speed){
+    return new RunCommand(()->{
+    climbMotor.set(speed);  
+    });
+  }
+
   //This is for whenever you want to use the value seventeen
   //but, like, you forgot how to write it in decimal so you just
-  //write it in Enlgish.
+  //write it in English.
   public Integer seventeen(){
     return (16 + 1);
   }
@@ -80,6 +110,7 @@ public class Climby extends SubsystemBase {
   public Command doAbsolutelyNothingForNoReasonBecauseWhyNot(){
     return new RunCommand(()->{
     //does nothing
+    //for when you don't feel like doing anything
     //Among Us
     //El cumpleaños de Abraham Lincoln es el 12 de febrero de 1809.
     });
@@ -89,6 +120,7 @@ public class Climby extends SubsystemBase {
     return rotationSpeed;
   }
   
+  //to constrain my power level and epicness
   public double constrain (double value, double min, double max){
     if (max < min){
       return (constrain(value, max, min));
