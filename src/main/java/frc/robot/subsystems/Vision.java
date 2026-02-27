@@ -60,6 +60,15 @@ public RawFiducial[] fiducials;
     return 0;
   }
 
+  public boolean inHubRange(){
+    if (getDistance() <= 20 && getDistance() >= 0.5){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+
   public void updateMeasurments(){
     measuments = LimelightHelpers.getBotPose_TargetSpace("");
 

@@ -35,7 +35,7 @@ public class Climby extends SubsystemBase {
 
     //I lowkey don't know how this works.
     public TalonFX climbMotor = new TalonFX(1);
-    public Encoder climbEncoder = new Encoder(0,1);
+    //public Encoder climbEncoder = new Encoder(0,1);
     public PIDController PID = new PIDController(1, 0, 0);
     
     ;
@@ -58,7 +58,8 @@ public class Climby extends SubsystemBase {
  
   //Do it just cuz.
   public double getDigitalRotation(){
-    return climbEncoder.get();
+    return 1;
+    //climbEncoder.get();
   }
 
   public Command setDigitalRotation(double set){

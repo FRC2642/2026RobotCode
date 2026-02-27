@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Dashboard;
 import frc.robot.subsystems.Intermediate;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Climby;
@@ -45,6 +46,7 @@ public class RobotContainer {
     public final Vision vision = new Vision();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final intakeTilt intakeTilt = new intakeTilt();
+    public final Dashboard dash = new Dashboard(vision);
     public RobotContainer() {
         configureBindings();
     }
@@ -57,48 +59,44 @@ public class RobotContainer {
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
-        );
- 
-        //intermediate toggle
-        joystick.x().onTrue(intermediate.Spin(1));
-        
-        joystick.a().whileTrue(vision.print());
-        
-        joystick.b().onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
-
-
+                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate))); // Drive counterclockwise with negative X (left)
+            
         joystick.b().whileTrue(
             drivetrain.applyRequest(()->
             drive
             .withVelocityX(-joystick.getLeftY() * MaxSpeed)
             .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-            .withRotationalRate(vision.getRotateOutput())
-            )
-        );
-
-
+            .withRotationalRate(vision.getRotateOutput())));
+        //brake
+        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        // Reset the field-centric heading on left bumper press.
+        joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        joystick.rightTrigger().onTrue(dash.setRumble(joystick, joystick.getRightTriggerAxis()));
+        
+        //print vision data
         joystick.a().whileTrue(vision.print());
+        //intermediate toggle
+        joystick.x().onTrue(intermediate.Spin(1));
+        //climb
+        joystick.b().onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
+        //intake Tilt
         joystick.y().onTrue(intakeTilt.decideRotation(intakeTilt.motorState));
+        
+
+
+
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
-
-        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
         joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // Reset the field-centric heading on left bumper press.
-        joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
