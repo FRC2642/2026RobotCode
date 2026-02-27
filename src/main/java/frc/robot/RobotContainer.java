@@ -20,11 +20,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-<<<<<<< HEAD
 import frc.robot.subsystems.Dashboard;
-=======
 import frc.robot.subsystems.IntakeSpin;
->>>>>>> origin/main
 import frc.robot.subsystems.Intermediate;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Climby;
