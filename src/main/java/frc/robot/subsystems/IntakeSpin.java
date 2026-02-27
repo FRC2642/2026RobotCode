@@ -5,14 +5,22 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.intakeTilt.RotationPositions;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 public class IntakeSpin extends SubsystemBase {
-    public Boolean isSpinning = true;
-  public TalonFX spinMotor = new TalonFX(0);
+  public Boolean isSpinning = false;
+  public TalonFX spinMotor = new TalonFX(25);
+  
+  public IntakeSpin(){
+    spinMotor.setNeutralMode(NeutralModeValue.Brake);
+    setDefaultCommand(runOnce(()->{
+      spinMotor.set(0);
+    }));
+  }
+
   public Command decideSpin(Boolean isSpinning){
     if (isSpinning ==true) {
       return new RunCommand(()->{
@@ -29,6 +37,21 @@ public class IntakeSpin extends SubsystemBase {
       isSpinning = newState;
       spinMotor.set((speed));
     });
+  }
+  public Command spin(){
+    return run(()->{
+      spinMotor.set(1);
+    }).andThen(runOnce(()->{
+      spinMotor.set(0);
+    }));
+  }
+
+  public Command manualSpin(double speed){
+    return run(()->{
+      spinMotor.set(speed);
+    }).andThen(runOnce(()->{
+      spinMotor.set(0);
+    }));
   }
   @Override
   public void periodic() {}

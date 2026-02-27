@@ -34,7 +34,7 @@ public class Climby extends SubsystemBase {
     public double rotationSpeed = 40; 
 
     //I probably understand this now.
-    public TalonFX climbMotor = new TalonFX(1);
+    public TalonFX climbMotor = new TalonFX(0);
     //public Encoder climbEncoder = new Encoder(0,1);
     public PIDController PID = new PIDController(1, 0, 0);
     public RotationPositions motorState;
