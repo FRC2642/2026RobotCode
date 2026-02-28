@@ -49,6 +49,8 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
 
+        //make the autos so they show up in the auto selector
+
         //named commands for autos
         //NamedCommands.registerCommand(null, );
     }
