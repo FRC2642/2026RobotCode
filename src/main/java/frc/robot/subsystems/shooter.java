@@ -47,7 +47,7 @@ intakeShooterMotor.set(0);
 public Command shoot(double Distance){
   return run(()-> {
 topMotor.set(1*Distance);
-intakeShooterMotor.set(1*Distance);
+intakeShooterMotor.set(-0.3*Distance);
 //bottonMotor.set(0*bottonShooterSpeed);
 // to use a enum I probley need a if statment but I don't know if we're going to be doing anything like that
 //so I guess this will stay not completed. YAY.
