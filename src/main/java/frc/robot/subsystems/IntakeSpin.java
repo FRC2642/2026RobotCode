@@ -40,7 +40,14 @@ public class IntakeSpin extends SubsystemBase {
   }
   public Command spin(){
     return run(()->{
-      spinMotor.set(1);
+      spinMotor.set(0.3);
+    }).andThen(runOnce(()->{
+      spinMotor.set(0);
+    }));
+  }
+  public Command reverseSpin(){
+    return run(()->{
+      spinMotor.set(-0.3);
     }).andThen(runOnce(()->{
       spinMotor.set(0);
     }));

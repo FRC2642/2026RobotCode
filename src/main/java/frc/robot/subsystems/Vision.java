@@ -13,9 +13,13 @@ import frc.robot.LimelightHelpers.RawFiducial;
 public class Vision extends SubsystemBase {
 public double[] measuments = {0,0,0,0,0,0};
 public PIDController rotPID = new PIDController(0.2, 0, 0);
+public PIDController drivePID = new PIDController(1, 0, 0);
 public int tagID;
 public RawFiducial[] fiducials;
   public Vision() {
+    setDefaultCommand(run(()->{
+      System.out.println("Distance: "+getDistance());
+    }));
   }
 
   public Command print(){
@@ -43,6 +47,16 @@ public RawFiducial[] fiducials;
     }
     if (output < -1){
       output = -1;
+    }
+    return output;
+  }
+  public double getDriveOutput(){
+    double output = drivePID.calculate(getDistance(), 2.438);
+    if (output < -2.4380000){
+      output = -1;
+    }
+    if (output > 2.43800000){
+      output = 1;
     }
     return output;
   }

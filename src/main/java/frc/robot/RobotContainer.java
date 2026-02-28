@@ -43,6 +43,9 @@ public class RobotContainer {
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.RobotCentric robotDrive = new SwerveRequest.RobotCentric()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate *0.1)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -73,6 +76,12 @@ public class RobotContainer {
             drive.withVelocityX(-controller.getLeftY() * MaxSpeed)
                 .withVelocityY(-controller.getLeftX() * MaxSpeed)
                 .withRotationalRate(vision.getRotateOutput())));
+        controller.povUp().whileTrue(
+            drivetrain.applyRequest(()->
+            robotDrive.withVelocityX(vision.getDriveOutput())
+            .withVelocityY(0)
+            .withRotationalRate(0))
+        );
         //SHOOT
         controller.rightBumper().whileTrue(shooterSub.shoot(1));
         //INTERMEDIATE
@@ -83,6 +92,7 @@ public class RobotContainer {
         //INTAKE TOGGLE
         auxController.a().onTrue(intakeTilt.rotate(intakeTilt.motorState));
         auxController.b().whileTrue(intakeSpin.spin());
+        auxController.y().whileTrue(intakeSpin.reverseSpin());
         //auxController.a().onTrue(intakeTilt.decideRotation(intakeTilt.motorState));
         //auxController.a().onTrue(intakeSpin.decideSpin(intakeSpin.isSpinning));
         //MANUAL INTAKE TILT
