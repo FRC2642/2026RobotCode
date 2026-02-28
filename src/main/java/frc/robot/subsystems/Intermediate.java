@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intermediate extends SubsystemBase {
-  public TalonFX SpinMotor =new TalonFX(1);
+  public TalonFX SpinMotor = new TalonFX(0);
   /** Creates a new Intermediate. */
   public Intermediate() {
     setDefaultCommand(runOnce(()->{

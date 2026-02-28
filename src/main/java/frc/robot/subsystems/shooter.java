@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 @SuppressWarnings("unused")
 public class shooter extends SubsystemBase {
-  public TalonFX topMotor = new TalonFX(0);
+  public TalonFX topMotor = new TalonFX(24);
   public TalonFX bottonMotor = new TalonFX(0);
   public TalonFX intakeShooterMotor = new TalonFX(0);
   //the three motors, named based on hight
@@ -44,13 +44,15 @@ bottonMotor.set(0);
 intakeShooterMotor.set(0);
 }));
 }
-public Command shoot(shootModes Distance){
+public Command shoot(double Distance){
   return run(()-> {
-topMotor.set(topShooterSpeed*0);
-bottonMotor.set(0*bottonShooterSpeed);
+topMotor.set(1*Distance);
+//bottonMotor.set(0*bottonShooterSpeed);
 // to use a enum I probley need a if statment but I don't know if we're going to be doing anything like that
 //so I guess this will stay not completed. YAY.
-  });
+  }).andThen(runOnce(()->{
+    topMotor.set(0);
+  }));
 }
 public Command intakeShoot(){
   return run(()->{
