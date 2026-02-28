@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class shooter extends SubsystemBase {
   public TalonFX topMotor = new TalonFX(24);
   public TalonFX bottonMotor = new TalonFX(0);
-  public TalonFX intakeShooterMotor = new TalonFX(0);
+  public TalonFX intakeShooterMotor = new TalonFX(22);
   //the three motors, named based on hight
   public shootModes distance;
   // fist distance is enum name second is verable name
@@ -47,11 +47,13 @@ intakeShooterMotor.set(0);
 public Command shoot(double Distance){
   return run(()-> {
 topMotor.set(1*Distance);
+intakeShooterMotor.set(1*Distance);
 //bottonMotor.set(0*bottonShooterSpeed);
 // to use a enum I probley need a if statment but I don't know if we're going to be doing anything like that
 //so I guess this will stay not completed. YAY.
   }).andThen(runOnce(()->{
     topMotor.set(0);
+    intakeShooterMotor.set(0);
   }));
 }
 public Command intakeShoot(){
