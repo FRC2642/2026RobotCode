@@ -56,8 +56,10 @@ topMotor.set(1*Distance);
 }
 public Command intakeShoot(){
   return run(()->{
-intakeShooterMotor.set(0);
-  });
+intakeShooterMotor.set(1);
+  }).andThen(runOnce(()->{
+    intakeShooterMotor.set(0);
+  }));
 }
 public enum shootModes{
 

@@ -84,6 +84,7 @@ public class RobotContainer {
         );
         //SHOOT
         controller.rightBumper().whileTrue(shooterSub.shoot(1));
+        controller.rightBumper().whileTrue(shooterSub.intakeShoot());
         //INTERMEDIATE
         controller.x().whileTrue(intermediate.Spin(1));
         controller.y().whileTrue(intermediate.Spin(-1));
