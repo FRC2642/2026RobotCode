@@ -99,6 +99,17 @@ public class RobotContainer {
         auxController.a().onTrue(intakeTilt.rotate(intakeTilt.motorState));
         auxController.b().whileTrue(intakeSpin.spin());
         auxController.y().whileTrue(intakeSpin.reverseSpin());
+        //CLIMB ALLIGNMENT (NATE)
+        auxController.x().whileTrue(
+        drivetrain.applyRequest(()->
+            robotDrive.withVelocityX(vision.getOutputX())
+                .withVelocityY(vision.getOutputY())
+                .withRotationalRate(vision.getOutputRot())));
+        controller.povUp().whileTrue(
+            drivetrain.applyRequest(()->
+            robotDrive.withVelocityX(vision.getDriveOutput())
+            .withVelocityY(0)
+            .withRotationalRate(0)));
         //auxController.a().onTrue(intakeTilt.decideRotation(intakeTilt.motorState));
         //auxController.a().onTrue(intakeSpin.decideSpin(intakeSpin.isSpinning));
         //MANUAL INTAKE TILT

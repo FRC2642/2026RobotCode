@@ -13,12 +13,21 @@ import frc.robot.LimelightHelpers.RawFiducial;
 public class Vision extends SubsystemBase {
 public double[] measuments = {0,0,0,0,0,0};
 public PIDController rotPID = new PIDController(0.2, 0, 0);
-public PIDController drivePID = new PIDController(1, 0, 0);
+public PIDController drivePID = new PIDController(0.2, 0, 0);
+
+public PIDController climbXPID = new PIDController(2, 0, 0);
+public PIDController climbYPID = new PIDController(2, 0, 0);
+public PIDController climbRotPID = new PIDController(0.02, 0, 0);
 public int tagID;
+public double maxSpeed = 1;
 public RawFiducial[] fiducials;
   public Vision() {
     setDefaultCommand(run(()->{
-      System.out.println("Distance: "+getDistance());
+      updateMeasurments();
+      System.out.println("tag in sight? "+LimelightHelpers.getTV("") );
+      System.out.println("measurments x: "+measuments[2]);
+      System.out.println("measurments y: "+measuments[0]);
+      System.out.println("measurments rot: "+measuments[4]);
     }));
   }
 
@@ -38,6 +47,46 @@ public RawFiducial[] fiducials;
       }
 
     });
+  }
+// FOR CLIMB ALLIGNMENT (NATE)
+      public double getOutputX(){
+    updateMeasurments();
+    double output = climbXPID.calculate(measuments[2], -1.338);
+    if (output > maxSpeed){
+      output = maxSpeed;
+    }
+    if (output < -maxSpeed){
+      output = -maxSpeed;
+    }
+    System.out.println("x: " + output);
+    if(!LimelightHelpers.getTV("")){
+      return 0;
+    }
+    return -output;
+  }
+  public double getOutputY(){
+    updateMeasurments();
+    double output = -climbYPID.calculate(measuments[0], 0.213);
+    if (output > maxSpeed){
+      output = maxSpeed;
+    }
+    if (output < -maxSpeed){
+      output = -maxSpeed;
+    }
+    System.out.println("y: " + output);
+    if(!LimelightHelpers.getTV("")){
+      return 0;
+    }
+    return -output;
+  }
+  public double getOutputRot(){
+    updateMeasurments();
+    double output = climbRotPID.calculate(measuments[4], -2.2);
+    System.out.println("rot: " + output);
+    if(!LimelightHelpers.getTV("")){
+      return 0;
+    }
+    return -output;
   }
 
   public double getRotateOutput(){
@@ -84,8 +133,9 @@ public RawFiducial[] fiducials;
   }
 
   public void updateMeasurments(){
-    measuments = LimelightHelpers.getBotPose_TargetSpace("");
-
+    if(LimelightHelpers.getTV("")){
+      measuments = LimelightHelpers.getBotPose_TargetSpace("");
+    }
     }
   @Override
   public void periodic() {
