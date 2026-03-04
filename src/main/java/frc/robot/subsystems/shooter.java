@@ -14,10 +14,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 @SuppressWarnings("unused")
 public class shooter extends SubsystemBase {
-  public TalonFX topMotor = new TalonFX(24);
-  public TalonFX bottonMotor = new TalonFX(0);
+  public TalonFX leftTopMotor = new TalonFX(24);
+  public TalonFX leftBottonMotor = new TalonFX(0);
+  public TalonFX rightTopMotor = new TalonFX(0);
+  public TalonFX rightBottonMoter = new TalonFX(0);
+  // the left and right is desided based on if you are standing at the back of the robot. the back being the oppsite side from the shooter
   public TalonFX intakeShooterMotor = new TalonFX(22);
-  //the three motors, named based on hight
+  //the six motors, named based on hight
   public shootModes distance;
   // fist distance is enum name second is verable name
   public static double position;
@@ -35,24 +38,34 @@ public class shooter extends SubsystemBase {
   //public double rotationSpeed = 1/RPM;
   /** Creates a new shooter. */
   public shooter() {
-topMotor.setNeutralMode(NeutralModeValue.Brake);
-bottonMotor.setNeutralMode(NeutralModeValue.Brake);
+leftTopMotor.setNeutralMode(NeutralModeValue.Brake);
+leftBottonMotor.setNeutralMode(NeutralModeValue.Brake);
+rightTopMotor.setNeutralMode(NeutralModeValue.Brake);
+rightBottonMoter.setNeutralMode(NeutralModeValue.Brake);
 intakeShooterMotor.setNeutralMode(NeutralModeValue.Brake);
 setDefaultCommand(run(() ->{
-topMotor.set(0);
-bottonMotor.set(0);
+leftTopMotor.set(0);
+leftBottonMotor.set(0);
+rightTopMotor.set(0);
+rightBottonMoter.set(0);
 intakeShooterMotor.set(0);
 }));
 }
-public Command shoot(double Distance){
+public Command shoot(double speed){
   return run(()-> {
-topMotor.set(1*Distance);
-intakeShooterMotor.set(-0.3*Distance);
+leftTopMotor.set(speed);
+leftBottonMotor.set(speed);
+rightTopMotor.set(speed);
+rightBottonMoter.set(speed);
+intakeShooterMotor.set(-0.3);
 //bottonMotor.set(0*bottonShooterSpeed);
 // to use a enum I probley need a if statment but I don't know if we're going to be doing anything like that
 //so I guess this will stay not completed. YAY.
   }).andThen(runOnce(()->{
-    topMotor.set(0);
+    leftTopMotor.set(0);
+    leftBottonMotor.set(0);
+    rightTopMotor.set(0);
+    rightBottonMoter.set(0);
     intakeShooterMotor.set(0);
   }));
 }
