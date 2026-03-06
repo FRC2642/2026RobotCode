@@ -97,10 +97,9 @@ public class RobotContainer {
             robotDrive.withVelocityX(vision.getDriveOutput())
             .withVelocityY(0)
             .withRotationalRate(0))
-        );
+        );  
         //SHOOT
         controller.rightBumper().whileTrue(shooterSub.shoot(1));
-        controller.rightBumper().whileTrue(shooterSub.intakeShoot());
         //INTERMEDIATE
         controller.x().whileTrue(intermediate.Spin(1));
         controller.y().whileTrue(intermediate.Spin(-1));
@@ -110,11 +109,22 @@ public class RobotContainer {
         auxController.a().onTrue(intakeTilt.rotate(intakeTilt.motorState));
         auxController.b().whileTrue(intakeSpin.spin());
         auxController.y().whileTrue(intakeSpin.reverseSpin());
+        //CLIMB ALLIGNMENT (NATE)
+        auxController.x().whileTrue(
+        drivetrain.applyRequest(()->
+            robotDrive.withVelocityX(vision.getOutputX())
+                .withVelocityY(vision.getOutputY())
+                .withRotationalRate(vision.getOutputRot())));
+        controller.povUp().whileTrue(
+            drivetrain.applyRequest(()->
+            robotDrive.withVelocityX(vision.getDriveOutput())
+            .withVelocityY(0)
+            .withRotationalRate(0)));
         //auxController.a().onTrue(intakeTilt.decideRotation(intakeTilt.motorState));
         //auxController.a().onTrue(intakeSpin.decideSpin(intakeSpin.isSpinning));
         //MANUAL INTAKE TILT
-        controller.a().whileTrue(intakeTilt.manualIntake(0.1));
-        controller.b().whileTrue(intakeTilt.manualIntake(-0.1));
+        auxController.rightBumper().whileTrue(intakeTilt.manualIntake(0.1));
+        auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-0.1));
 
         //climb
         //joystick.b().onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));

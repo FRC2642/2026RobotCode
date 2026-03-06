@@ -53,7 +53,7 @@ public class intakeTilt extends SubsystemBase {
     if (output < -maxRotateSpeed){
       output = -maxRotateSpeed;
     }
-    return -output;
+    return output;
   }
 
   // public Command rotate(RotationPositions newState){
