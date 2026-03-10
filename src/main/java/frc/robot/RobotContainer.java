@@ -72,6 +72,9 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
         autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
+        //create named commands
+        //these are all the robot to perform certain actions during auto
+        NamedCommands.registerCommand("shoot", shooterSub.shoot(1));
 
 
         //named commands for autos
