@@ -8,9 +8,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.intakeTilt.RotationPositions;
 
 @SuppressWarnings("unused")
 public class shooter extends SubsystemBase {
@@ -24,6 +28,7 @@ public class shooter extends SubsystemBase {
   public shootModes distance;
   // fist distance is enum name second is verable name
   public static double position;
+  public DutyCycleEncoder encoder = new DutyCycleEncoder(0);
   // 
 //   public final double velocity(){
 //   //       gravity     dist from goal            goalY-startY                                        allat times this                                           
@@ -53,9 +58,7 @@ intakeShooterMotor.set(0);
 }
 public Command shoot(double speed){
   return run(()-> {
-leftTopMotor.set(speed);
 leftBottonMotor.set(speed);
-rightTopMotor.set(speed);
 rightBottonMoter.set(speed);
 intakeShooterMotor.set(-0.3);
 //bottonMotor.set(0*bottonShooterSpeed);
