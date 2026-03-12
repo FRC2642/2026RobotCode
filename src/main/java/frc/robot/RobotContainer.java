@@ -61,7 +61,7 @@ public class RobotContainer {
     public final Dashboard dash = new Dashboard(vision);
     public final IntakeSpin intakeSpin = new IntakeSpin();
     public final shooter shooterSub = new shooter();
-    public Climby Climby = new Climby();
+    public final Climby Climby = new Climby();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -74,7 +74,7 @@ public class RobotContainer {
         autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
         //create named commands
         //these are all the robot to perform certain actions during auto
-        NamedCommands.registerCommand("shoot", shooterSub.shoot(1));
+        NamedCommands.registerCommand("shoot", shooterSub.staticShoot(1));
 
 
         //named commands for autos
@@ -102,16 +102,16 @@ public class RobotContainer {
             .withRotationalRate(0))
         );  
         //SHOOT
-        controller.rightBumper().whileTrue(shooterSub.shoot(1));
+        controller.rightBumper().whileTrue(shooterSub.staticShoot(1));
         //INTERMEDIATE
         controller.x().whileTrue(intermediate.Spin(1));
         controller.y().whileTrue(intermediate.Spin(-1));
         auxController.leftTrigger().whileTrue(intermediate.Spin(-1 * auxController.getLeftTriggerAxis()));
         auxController.rightTrigger().whileTrue(intermediate.Spin(1 * auxController.getRightTriggerAxis()));
         //INTAKE TOGGLE
-        auxController.a().onTrue(intakeTilt.rotate(intakeTilt.motorState));
-        auxController.b().whileTrue(intakeSpin.spin());
-        auxController.y().whileTrue(intakeSpin.reverseSpin());
+        auxController.a().onTrue(intakeTilt.toggleRotate().andThen(intakeTilt.rotate(intakeTilt.motorState)));
+        auxController.b().whileTrue(intakeSpin.spin(0.3));
+        auxController.y().whileTrue(intakeSpin.spin(-0.3));
         //CLIMB ALLIGNMENT (NATE)
         auxController.x().whileTrue(
         drivetrain.applyRequest(()->

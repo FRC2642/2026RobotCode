@@ -14,13 +14,16 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class intakeTilt extends SubsystemBase {
   public double maxRotateSpeed = 0.8;
-  public RotationPositions motorState = RotationPositions.up;
-  //defining both motors on the thing
-  public TalonFX tiltMotor = new TalonFX(21);
-  public DutyCycleEncoder encoder = new DutyCycleEncoder(9);
   public PIDController PID = new PIDController(1,0,0);
 
+  public RotationPositions motorState = RotationPositions.up;
+
+  //defining both motors on the thing
+  public TalonFX tiltMotor = new TalonFX(14);
+  public DutyCycleEncoder encoder = new DutyCycleEncoder(9);
+
   public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.1);
+
   /** Creates a new intakeTilt. */
   public intakeTilt() {
     tiltMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -63,21 +66,30 @@ public class intakeTilt extends SubsystemBase {
   //   }).until(positionReached);
   // }
 
-  public Command rotate(RotationPositions newState){
+  public Command toggleRotate(){
     return runOnce(()->{
-      if (motorState == RotationPositions.up){
-        System.out.println("choose Rotate down");
+      if(motorState == RotationPositions.up){
         motorState = RotationPositions.down;
       }
       else{
-        System.out.println("choose Rotate up");
-        motorState = RotationPositions.up;
-      }
-    }).andThen(run(()->{
-      tiltMotor.set(getRotateOutput());
-      System.out.println("going " + motorState + "|| Encoder: " + getEncoderValue());
-    })).until(positionReached);
+        if(motorState == RotationPositions.down){
+          motorState = RotationPositions.up;
+      }}
+    });
   }
+  public Command rotate(RotationPositions newState){
+    return run(()->{
+      motorState = newState;
+      tiltMotor.set(getRotateOutput());
+      //System.out.println("going " + motorState + "|| Encoder: " + getEncoderValue());
+    }).until(positionReached);
+  }
+  public Command manualIntake(double speed){
+    return run(()->{
+      tiltMotor.set(speed);
+    });
+  }
+
 
   public Command decideRotation(RotationPositions motorState){
     if (motorState==RotationPositions.up) {
@@ -91,12 +103,6 @@ public class intakeTilt extends SubsystemBase {
         rotate(RotationPositions.up);
     });
     } 
-  }
-
-  public Command manualIntake(double speed){
-    return run(()->{
-      tiltMotor.set(speed);
-    });
   }
   @Override
   public void periodic() {

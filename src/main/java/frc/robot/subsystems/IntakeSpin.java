@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 public class IntakeSpin extends SubsystemBase {
   public Boolean isSpinning = false;
-  public TalonFX spinMotor = new TalonFX(25);
+  public TalonFX spinMotor = new TalonFX(15);
   
   public IntakeSpin(){
     spinMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -20,6 +20,20 @@ public class IntakeSpin extends SubsystemBase {
       spinMotor.set(0);
     }));
   }
+  public Command spinToggle(double speed, Boolean newState){
+    return new RunCommand(()->{
+      isSpinning = newState;
+      spinMotor.set((speed));
+    });
+  }
+  public Command spin(Double speed){
+    return run(()->{
+      spinMotor.set(speed);
+    }).andThen(runOnce(()->{
+      spinMotor.set(0);
+    }));
+  }
+
 
   public Command decideSpin(Boolean isSpinning){
     if (isSpinning ==true) {
@@ -32,34 +46,7 @@ public class IntakeSpin extends SubsystemBase {
     });
     } 
   }
-  public Command spinToggle(double speed, Boolean newState){
-    return new RunCommand(()->{
-      isSpinning = newState;
-      spinMotor.set((speed));
-    });
-  }
-  public Command spin(){
-    return run(()->{
-      spinMotor.set(0.3);
-    }).andThen(runOnce(()->{
-      spinMotor.set(0);
-    }));
-  }
-  public Command reverseSpin(){
-    return run(()->{
-      spinMotor.set(-0.3);
-    }).andThen(runOnce(()->{
-      spinMotor.set(0);
-    }));
-  }
 
-  public Command manualSpin(double speed){
-    return run(()->{
-      spinMotor.set(speed);
-    }).andThen(runOnce(()->{
-      spinMotor.set(0);
-    }));
-  }
   @Override
   public void periodic() {}
 }
