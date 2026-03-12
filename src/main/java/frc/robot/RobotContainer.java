@@ -63,18 +63,18 @@ public class RobotContainer {
     public final shooter shooterSub = new shooter();
     public final Climby Climby = new Climby();
 
-    private final SendableChooser<Command> autoChooser;
+    //private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
         configureBindings();
 
         //make the autos so they show up in the auto selector
-        autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto Chooser", autoChooser);
-        autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
+        //autoChooser = AutoBuilder.buildAutoChooser();
+        //SmartDashboard.putData("Auto Chooser", autoChooser);
+        //autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
         //create named commands
         //these are all the robot to perform certain actions during auto
-        NamedCommands.registerCommand("shoot", shooterSub.staticShoot(1));
+        //NamedCommands.registerCommand("shoot", shooterSub.staticShoot(1));
 
 
         //named commands for autos
@@ -103,11 +103,12 @@ public class RobotContainer {
         );  
         //SHOOT
         controller.rightBumper().whileTrue(shooterSub.staticShoot(1));
+        controller.rightBumper().whileTrue(dash.setRumble(controller, 1));
         //INTERMEDIATE
-        controller.x().whileTrue(intermediate.Spin(1));
-        controller.y().whileTrue(intermediate.Spin(-1));
-        auxController.leftTrigger().whileTrue(intermediate.Spin(-1 * auxController.getLeftTriggerAxis()));
-        auxController.rightTrigger().whileTrue(intermediate.Spin(1 * auxController.getRightTriggerAxis()));
+        controller.x().whileTrue(intermediate.Spin(0.3));
+        controller.y().whileTrue(intermediate.Spin(-0.3));
+        auxController.leftTrigger().whileTrue(intermediate.Spin(-0.5 * auxController.getLeftTriggerAxis()));
+        auxController.rightTrigger().whileTrue(intermediate.Spin(0.5 * auxController.getRightTriggerAxis()));
         //INTAKE TOGGLE
         auxController.a().onTrue(intakeTilt.toggleRotate().andThen(intakeTilt.rotate(intakeTilt.motorState)));
         auxController.b().whileTrue(intakeSpin.spin(0.3));
@@ -169,7 +170,8 @@ public class RobotContainer {
             // Finally idle for the rest of auton
             drivetrain.applyRequest(() -> idle)
         );*/
-        return autoChooser.getSelected();
+        //return autoChooser.getSelected();
+        return Commands.print("No autonomous command configured");
     }
     
 }

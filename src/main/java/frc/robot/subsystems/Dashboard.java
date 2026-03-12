@@ -22,9 +22,9 @@ public class Dashboard extends SubsystemBase {
   }
 
   public Command setRumble(CommandXboxController controller, double amount){
-    return runOnce(()->{
+    return run(()->{
       System.out.println("set rumble");
-      controller.setRumble(RumbleType.kBothRumble, amount);
+      controller.setRumble(RumbleType.kBothRumble, 1.0);
     });
   }
 

@@ -76,9 +76,9 @@ public class shooter extends SubsystemBase {
   // }
 
   public void setShooterSpeed(double speed){
-    topLeftMotor.set(speed);
+    topLeftMotor.set(-speed);
     topRightMotor.set(speed);
-    BottomLeftMotor.set(speed);
+    BottomLeftMotor.set(-speed);
     BottomRightMotor.set(speed);
   }
   public enum shootModes{
@@ -91,11 +91,11 @@ public class shooter extends SubsystemBase {
       position = pos; 
     }
   }
-  
+
   public Command staticShoot(double speed){
     return run(()->{
       setShooterSpeed(speed);
-      rollerMotor.set(speed);
+      rollerMotor.set(-speed);
     });
   }
 
