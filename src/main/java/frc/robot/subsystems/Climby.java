@@ -44,7 +44,11 @@ public class Climby extends SubsystemBase {
     
   //I might know what this means.
   public Climby(){
+    climbMotor.setNeutralMode(NeutralModeValue.Coast);
     doAbsolutelyNothingForNoReasonBecauseWhyNot();
+    setDefaultCommand(run(()->{
+      climbMotor.set(0);
+    }));
   }
 
   //This fuction climbs up until it reaches the Target Value, and then goes down to zero.
@@ -59,6 +63,14 @@ public class Climby extends SubsystemBase {
       currentTarget = 0;
       climbMotor.set(climbMotorOutput(currentTarget));
     })).until(positionReached);
+  }
+
+  public Command manualClimb(double speed){
+    return run(()->{
+      climbMotor.set(speed);
+    }).andThen(run(()->{
+      climbMotor.set(0);
+    }));
   }
  
   //Do it just cuz.

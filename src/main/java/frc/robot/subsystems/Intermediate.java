@@ -22,6 +22,14 @@ public class Intermediate extends SubsystemBase {
       SpinMotor.set(speed);
     });
   }
+
+  public Command autoSpinCommand(){
+    return run(()->{
+      SpinMotor.set(0.75);
+    }).withTimeout(12).andThen(runOnce(()->{
+      SpinMotor.set(0);
+    }));
+  }
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

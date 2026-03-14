@@ -20,7 +20,6 @@ public class shooter extends SubsystemBase {
   public TalonFX BottomRightMotor = new TalonFX(18);
 
   public TalonFX rollerMotor = new TalonFX(21);
-  public TalonFX tiltMotor = new TalonFX(22);
   //the three motors, named based on hight
   public shootModes shootMode;
   // fist distance is enum name second is verable name
@@ -45,12 +44,10 @@ public class shooter extends SubsystemBase {
     BottomLeftMotor.setNeutralMode(NeutralModeValue.Brake);
     BottomLeftMotor.setNeutralMode(NeutralModeValue.Brake);
     rollerMotor.setNeutralMode(NeutralModeValue.Brake);
-    tiltMotor.setNeutralMode(NeutralModeValue.Brake);
     
     setDefaultCommand(run(() ->{
       setShooterSpeed(0);
       rollerMotor.set(0);
-      tiltMotor.set(0);
     }));
   }
   
@@ -92,11 +89,26 @@ public class shooter extends SubsystemBase {
     }
   }
 
-  public Command staticShoot(double speed){
+  public Command runShooterWheels(double speed){
     return run(()->{
       setShooterSpeed(speed);
-      rollerMotor.set(-speed);
     });
+  }
+  public Command staticShoot(double speed){
+    return run(()->{
+      rollerMotor.set(-speed);
+      setShooterSpeed(1);
+    });
+  }
+
+  public Command autoShootCommand(){
+    return run(()->{
+      setShooterSpeed(1);
+      rollerMotor.set(-1);
+    }).withTimeout(12).andThen(runOnce(()->{
+      setShooterSpeed(0);
+      rollerMotor.set(0);
+    }));
   }
 
 @Override

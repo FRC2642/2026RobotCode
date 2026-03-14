@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -32,6 +33,8 @@ import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Climby;
 import frc.robot.subsystems.intakeTilt;
 import frc.robot.subsystems.shooter;
+import frc.robot.subsystems.shooterTilt;
+import frc.robot.subsystems.shooterTilt.tiltStates;
 import frc.robot.subsystems.intakeTilt.RotationPositions;
 @SuppressWarnings("unused")
 
@@ -61,14 +64,14 @@ public class RobotContainer {
     public final Dashboard dash = new Dashboard(vision);
     public final IntakeSpin intakeSpin = new IntakeSpin();
     public final shooter shooterSub = new shooter();
+    public final shooterTilt shooterTiltSub = new shooterTilt();
     public final Climby Climby = new Climby();
 
     //private final SendableChooser<Command> autoChooser;
-
     public RobotContainer() {
         configureBindings();
-
-        //make the autos so they show up in the auto selector
+        {
+            //make the autos so they show up in the auto selector
         //autoChooser = AutoBuilder.buildAutoChooser();
         //SmartDashboard.putData("Auto Chooser", autoChooser);
         //autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
@@ -79,63 +82,64 @@ public class RobotContainer {
 
         //named commands for autos
         //NamedCommands.registerCommand(null, );
+        }
     }
     private void configureBindings() {
-        //DEFAULT SWERVE
+    //DEFAULT SWERVE
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(-controller.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-controller.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-controller.getRightX() * MaxAngularRate))); // Drive counterclockwise with negative X (left)
-        //RESET GYRO
+    //RESET GYRO
         controller.rightTrigger().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-        //AUTO AIM
+    //AUTO AIM
         controller.leftBumper().whileTrue(
             drivetrain.applyRequest(()->
-            drive.withVelocityX(-controller.getLeftY() * MaxSpeed)
+            robotDrive.withVelocityX(vision.getDriveOutput())
                 .withVelocityY(-controller.getLeftX() * MaxSpeed)
                 .withRotationalRate(vision.getRotateOutput())));
-        controller.povUp().whileTrue(
-            drivetrain.applyRequest(()->
-            robotDrive.withVelocityX(vision.getDriveOutput())
-            .withVelocityY(0)
-            .withRotationalRate(0))
-        );  
-        //SHOOT
-        controller.rightBumper().whileTrue(shooterSub.staticShoot(1));
-        controller.rightBumper().whileTrue(dash.setRumble(controller, 1));
-        //INTERMEDIATE
-        controller.x().whileTrue(intermediate.Spin(0.3));
+    //SHOOT
+        controller.rightBumper().whileTrue(shooterSub.staticShoot(0.5)
+                                .alongWith(intermediate.Spin(0.3)));
+        controller.b().toggleOnTrue(shooterSub.runShooterWheels(1));
+
+    {//(NOT USED FOR ASHVILLE COMP)
+        //controller.a().whileTrue(shooterTiltSub.manualTilt(0.1));
+    //(NOT USED FOR ASHVILLE COMP)
+        //controller.rightBumper().onTrue(intakeTilt.rotateToShoot());
+    //(NOT USED FOR ASHVILLE COMP)
+        //controller.b().onTrue(shooterTiltSub.tilt(tiltStates.top));
+    }
+    
+    //INTERMEDIATE
+        controller.x().whileTrue(intermediate.Spin(0.75));
         controller.y().whileTrue(intermediate.Spin(-0.3));
-        auxController.leftTrigger().whileTrue(intermediate.Spin(-0.5 * auxController.getLeftTriggerAxis()));
-        auxController.rightTrigger().whileTrue(intermediate.Spin(0.5 * auxController.getRightTriggerAxis()));
-        //INTAKE TOGGLE
-        auxController.a().onTrue(intakeTilt.toggleRotate().andThen(intakeTilt.rotate(intakeTilt.motorState)));
-        auxController.b().whileTrue(intakeSpin.spin(0.3));
-        auxController.y().whileTrue(intakeSpin.spin(-0.3));
-        //CLIMB ALLIGNMENT (NATE)
-        auxController.x().whileTrue(
-        drivetrain.applyRequest(()->
-            robotDrive.withVelocityX(vision.getOutputX())
-                .withVelocityY(vision.getOutputY())
-                .withRotationalRate(vision.getOutputRot())));
-        controller.povUp().whileTrue(
-            drivetrain.applyRequest(()->
-            robotDrive.withVelocityX(vision.getDriveOutput())
-            .withVelocityY(0)
-            .withRotationalRate(0)));
-        //auxController.a().onTrue(intakeTilt.decideRotation(intakeTilt.motorState));
-        //auxController.a().onTrue(intakeSpin.decideSpin(intakeSpin.isSpinning));
-        //MANUAL INTAKE TILT
+        auxController.leftTrigger().whileTrue(intermediate.Spin(-0.3));
+        auxController.rightTrigger().whileTrue(intermediate.Spin(0.75));
+    //INTAKE TOGGLE
+        auxController.a().onTrue(intakeTilt.toggleRotate());
+        auxController.b().whileTrue(intakeSpin.spin(0.25));
+        auxController.y().whileTrue(intakeSpin.spin(-0.25));
+    //MANUAL INTAKE TILT
         auxController.rightBumper().whileTrue(intakeTilt.manualIntake(0.1));
         auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-0.1));
-
-        //climb
-        //joystick.b().onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
-        buttonBoard.button(1).onTrue(Climby.climbUp());
-        buttonBoard.button(2).onTrue(Climby.climbUp().andThen(Climby.climbUp()));
-        buttonBoard.button(3).onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
-        buttonBoard.button(0).onTrue(Climby.climbDown());
+    //CLIMB ALLIGNMENT (NATE) 
+    //(NOT USED FOR ASHVILLE COMP)
+        // auxController.x().whileTrue(
+        // drivetrain.applyRequest(()->
+        //     robotDrive.withVelocityX(vision.getOutputX())
+        //         .withVelocityY(vision.getOutputY())
+        //         .withRotationalRate(vision.getOutputRot())));
+    //CLIMB
+    //(NOT USED FOR ASHVILLE COMP)
+        // auxController.povUp().whileTrue(Climby.manualClimb(0.1));
+        // auxController.povDown().whileTrue(Climby.manualClimb(-0.1));
+        // //joystick.b().onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
+        // buttonBoard.button(1).onTrue(Climby.climbUp());
+        // buttonBoard.button(2).onTrue(Climby.climbUp().andThen(Climby.climbUp()));
+        // buttonBoard.button(3).onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
+        // buttonBoard.button(0).onTrue(Climby.climbDown());
 
 
 
@@ -171,7 +175,8 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle)
         );*/
         //return autoChooser.getSelected();
-        return Commands.print("No autonomous command configured");
+        //return Commands.print("No autonomous command configured");
+        return shooterSub.autoShootCommand().alongWith(intermediate.autoSpinCommand());
     }
     
 }

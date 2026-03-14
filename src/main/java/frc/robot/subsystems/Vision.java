@@ -13,7 +13,7 @@ import frc.robot.LimelightHelpers.RawFiducial;
 public class Vision extends SubsystemBase {
 public double[] measuments = {0,0,0,0,0,0};
 public PIDController rotPID = new PIDController(0.2, 0, 0);
-public PIDController drivePID = new PIDController(0.2, 0, 0);
+public PIDController drivePID = new PIDController(4, 0, 0);
 
 public PIDController climbXPID = new PIDController(2, 0, 0);
 public PIDController climbYPID = new PIDController(2, 0, 0);
@@ -25,9 +25,10 @@ public RawFiducial[] fiducials;
     setDefaultCommand(run(()->{
       updateMeasurments();
       System.out.println("tag in sight? "+LimelightHelpers.getTV("") );
-      System.out.println("measurments x: "+measuments[2]);
-      System.out.println("measurments y: "+measuments[0]);
-      System.out.println("measurments rot: "+measuments[4]);
+      System.out.println("distance: "+getDistance());
+      // System.out.println("measurments x: "+measuments[2]);
+      // System.out.println("measurments y: "+measuments[0]);
+      // System.out.println("measurments rot: "+measuments[4]);
     }));
   }
 
@@ -100,11 +101,11 @@ public RawFiducial[] fiducials;
     return output;
   }
   public double getDriveOutput(){
-    double output = drivePID.calculate(getDistance(), 2.438);
-    if (output < -2.4380000){
+    double output = drivePID.calculate(getDistance(), 1.27);
+    if (output < -1.27){
       output = -1;
     }
-    if (output > 2.43800000){
+    if (output > 1.27){
       output = 1;
     }
     return output;

@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class intakeTilt extends SubsystemBase {
-  public double maxRotateSpeed = 0.8;
-  public PIDController PID = new PIDController(1,0,0);
+  public double maxRotateSpeed = 1;
+  public PIDController PID = new PIDController(2.5,0,0);
 
   public RotationPositions motorState = RotationPositions.up;
 
@@ -22,7 +22,7 @@ public class intakeTilt extends SubsystemBase {
   public TalonFX tiltMotor = new TalonFX(14);
   public DutyCycleEncoder encoder = new DutyCycleEncoder(9);
 
-  public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.1);
+  public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.01);
 
   /** Creates a new intakeTilt. */
   public intakeTilt() {
@@ -35,9 +35,9 @@ public class intakeTilt extends SubsystemBase {
   }
   public enum RotationPositions{
     //default value at the top
-    up(0.10),
+    up(0.18),
     //put down in grab mode 
-    down(0.62);
+    down(0.75);
 
     public final double position;
     RotationPositions(double pos){
@@ -68,6 +68,7 @@ public class intakeTilt extends SubsystemBase {
 
   public Command toggleRotate(){
     return runOnce(()->{
+      System.out.println("toggled");
       if(motorState == RotationPositions.up){
         motorState = RotationPositions.down;
       }
@@ -75,12 +76,15 @@ public class intakeTilt extends SubsystemBase {
         if(motorState == RotationPositions.down){
           motorState = RotationPositions.up;
       }}
-    });
+    }).andThen(run(()->{
+        System.out.println("rotating");
+        tiltMotor.set(-getRotateOutput());
+    })).until(positionReached);
   }
   public Command rotate(RotationPositions newState){
     return run(()->{
       motorState = newState;
-      tiltMotor.set(getRotateOutput());
+      tiltMotor.set(-getRotateOutput());
       //System.out.println("going " + motorState + "|| Encoder: " + getEncoderValue());
     }).until(positionReached);
   }
@@ -88,6 +92,15 @@ public class intakeTilt extends SubsystemBase {
     return run(()->{
       tiltMotor.set(speed);
     });
+  }
+
+  public Command rotateToShoot(){
+    return run(()->{
+      motorState = RotationPositions.up;
+      tiltMotor.set(0.1);
+    }).until(positionReached).andThen(runOnce(()->{
+      tiltMotor.set(0);
+    }));
   }
 
 
