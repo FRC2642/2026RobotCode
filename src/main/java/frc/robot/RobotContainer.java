@@ -66,7 +66,9 @@ public class RobotContainer {
     public final shooter shooterSub = new shooter();
     public final shooterTilt shooterTiltSub = new shooterTilt();
     public final Climby Climby = new Climby();
-
+protected void execute() {
+     SmartDashboard.putNumber("Test", shooter.position);
+}
    //private final SendableChooser<Command> autoChooser;
     public RobotContainer() {
         configureBindings();
