@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -18,6 +19,8 @@ public class shooter extends SubsystemBase {
   public TalonFX topRightMotor = new TalonFX(17);
   public TalonFX BottomLeftMotor = new TalonFX(20);
   public TalonFX BottomRightMotor = new TalonFX(18);
+  public CurrentLimitsConfigs flyWheelCurrentLimits = new CurrentLimitsConfigs();
+  public CurrentLimitsConfigs RollerCurrentLimits = new CurrentLimitsConfigs();
 
   public TalonFX rollerMotor = new TalonFX(21);
   //the three motors, named based on hight
@@ -44,6 +47,15 @@ public class shooter extends SubsystemBase {
     BottomLeftMotor.setNeutralMode(NeutralModeValue.Brake);
     BottomLeftMotor.setNeutralMode(NeutralModeValue.Brake);
     rollerMotor.setNeutralMode(NeutralModeValue.Brake);
+    flyWheelCurrentLimits.SupplyCurrentLimitEnable = true; 
+    flyWheelCurrentLimits.SupplyCurrentLimit = 40.0;
+    RollerCurrentLimits.SupplyCurrentLimitEnable = true;
+    RollerCurrentLimits.SupplyCurrentLimit = 20.0;
+    topLeftMotor.getConfigurator().apply(flyWheelCurrentLimits);
+    topRightMotor.getConfigurator().apply(flyWheelCurrentLimits);
+    BottomLeftMotor.getConfigurator().apply(flyWheelCurrentLimits);
+    BottomLeftMotor.getConfigurator().apply(flyWheelCurrentLimits);
+    rollerMotor.getConfigurator().apply(RollerCurrentLimits);
     
     setDefaultCommand(run(() ->{
       setShooterSpeed(0);
@@ -97,13 +109,13 @@ public class shooter extends SubsystemBase {
   public Command staticShoot(double speed){
     return run(()->{
       rollerMotor.set(-speed);
-      setShooterSpeed(1);
+      setShooterSpeed(0.7);
     });
   }
 
   public Command autoShootCommand(){
     return run(()->{
-      setShooterSpeed(1);
+      setShooterSpeed(0.7);
       rollerMotor.set(-1);
     }).withTimeout(12).andThen(runOnce(()->{
       setShooterSpeed(0);

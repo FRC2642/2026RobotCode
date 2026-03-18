@@ -43,7 +43,7 @@ public class RobotContainer {
     private final CommandXboxController controller = new CommandXboxController(0);
     private final CommandXboxController auxController = new CommandXboxController(1);
 
-    private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxSpeed = 1 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -67,31 +67,35 @@ public class RobotContainer {
     public final shooterTilt shooterTiltSub = new shooterTilt();
     public final Climby Climby = new Climby();
 
-    //private final SendableChooser<Command> autoChooser;
+   //private final SendableChooser<Command> autoChooser;
     public RobotContainer() {
         configureBindings();
         {
-            //make the autos so they show up in the auto selector
         //autoChooser = AutoBuilder.buildAutoChooser();
+            //make the autos so they show up in the auto selector
         //SmartDashboard.putData("Auto Chooser", autoChooser);
-        //autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
+        NamedCommands.registerCommand("shoot", intakeTilt.toggleRotate()
+                    .alongWith(shooterSub.autoShootCommand()
+                    .alongWith(intermediate.autoSpinCommand())));
+        // autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
+        // autoChooser.addOption("Back And Shoot", new PathPlannerAuto("Shoot Auto"));
         //create named commands
         //these are all the robot to perform certain actions during auto
-        //NamedCommands.registerCommand("shoot", shooterSub.staticShoot(1));
-
-
-        //named commands for autos
-        //NamedCommands.registerCommand(null, );
         }
     }
     private void configureBindings() {
     //DEFAULT SWERVE
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-controller.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-controller.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-controller.getRightX() * MaxAngularRate))); // Drive counterclockwise with negative X (left)
-    //RESET GYRO
+                drive.withVelocityX(-controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-controller.getRightX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxAngularRate))); // Drive counterclockwise with negative X (left)
+
+        auxController.povUp().whileTrue(drivetrain.applyRequest(() ->
+                drive.withVelocityX(-controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed)
+                    .withVelocityY(-controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) 
+                    .withRotationalRate(MaxAngularRate)));
+    //RESET GYRO  
         controller.rightTrigger().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
     //AUTO AIM
         controller.leftBumper().whileTrue(
@@ -100,7 +104,7 @@ public class RobotContainer {
                 .withVelocityY(-controller.getLeftX() * MaxSpeed)
                 .withRotationalRate(vision.getRotateOutput())));
     //SHOOT
-        controller.rightBumper().whileTrue(shooterSub.staticShoot(0.5)
+        controller.rightBumper().whileTrue(shooterSub.staticShoot(1)
                                 .alongWith(intermediate.Spin(0.3)));
         controller.b().toggleOnTrue(shooterSub.runShooterWheels(1));
 
@@ -112,6 +116,8 @@ public class RobotContainer {
         //controller.b().onTrue(shooterTiltSub.tilt(tiltStates.top));
     }
     
+        auxController.x().whileTrue((shooterSub.staticShoot(-0.5)
+                                .alongWith(intermediate.Spin(-0.75))));
     //INTERMEDIATE
         controller.x().whileTrue(intermediate.Spin(0.75));
         controller.y().whileTrue(intermediate.Spin(-0.3));
@@ -119,8 +125,8 @@ public class RobotContainer {
         auxController.rightTrigger().whileTrue(intermediate.Spin(0.75));
     //INTAKE TOGGLE
         auxController.a().onTrue(intakeTilt.toggleRotate());
-        auxController.b().whileTrue(intakeSpin.spin(0.25));
-        auxController.y().whileTrue(intakeSpin.spin(-0.25));
+        auxController.b().whileTrue(intakeSpin.spin(0.4));
+        auxController.y().whileTrue(intakeSpin.spin(-0.4));
     //MANUAL INTAKE TILT
         auxController.rightBumper().whileTrue(intakeTilt.manualIntake(0.1));
         auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-0.1));
@@ -174,9 +180,17 @@ public class RobotContainer {
             // Finally idle for the rest of auton
             drivetrain.applyRequest(() -> idle)
         );*/
-        //return autoChooser.getSelected();
-        //return Commands.print("No autonomous command configured");
-        return shooterSub.autoShootCommand().alongWith(intermediate.autoSpinCommand());
+        //return new PathPlannerAuto("Shoot Auto");
+        
+        return drivetrain.applyRequest(() ->
+                drive.withVelocityX(-0.5)
+                    .withVelocityY(0)
+                    .withRotationalRate(0)
+            ).withTimeout(2)
+            .andThen(intakeTilt.toggleRotate()
+                    .alongWith(shooterSub.autoShootCommand()
+                    .alongWith(intermediate.autoSpinCommand())));
+        //intakeTilt.toggleRotate().alongWith(shooterSub.autoShootCommand().alongWith(intermediate.autoSpinCommand()));
     }
     
 }

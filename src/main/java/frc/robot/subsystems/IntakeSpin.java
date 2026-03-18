@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -13,9 +14,13 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 public class IntakeSpin extends SubsystemBase {
   public Boolean isSpinning = false;
   public TalonFX spinMotor = new TalonFX(15);
-  
+  public CurrentLimitsConfigs motorCurrentLimits = new CurrentLimitsConfigs();
+
   public IntakeSpin(){
     spinMotor.setNeutralMode(NeutralModeValue.Brake);
+    motorCurrentLimits.SupplyCurrentLimitEnable = true; 
+    motorCurrentLimits.SupplyCurrentLimit = 30.0;
+    spinMotor.getConfigurator().apply(motorCurrentLimits);
     setDefaultCommand(runOnce(()->{
       spinMotor.set(0);
     }));
