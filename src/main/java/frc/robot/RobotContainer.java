@@ -97,6 +97,7 @@ public class RobotContainer {
                     .withRotationalRate(MaxAngularRate)));
     //RESET GYRO  
         controller.rightTrigger().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        controller.rightTrigger().onTrue(intakeTilt.resetEncoder());
     //AUTO AIM
         controller.leftBumper().whileTrue(
             drivetrain.applyRequest(()->

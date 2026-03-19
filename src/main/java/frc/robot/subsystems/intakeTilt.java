@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class intakeTilt extends SubsystemBase {
   public double maxRotateSpeed = 1;
-  public PIDController PID = new PIDController(2.5,0,0);
+  public PIDController PID = new PIDController(2,0,0);
 
   public RotationPositions motorState = RotationPositions.up;
 
@@ -28,16 +28,17 @@ public class intakeTilt extends SubsystemBase {
   public intakeTilt() {
     tiltMotor.setNeutralMode(NeutralModeValue.Brake);
     setDefaultCommand(runOnce(()->{
-      //System.out.println("tilt encoder: "+ encoder.get());
+      System.out.println("tilt encoder: "+ getEncoderValue());
       tiltMotor.set(0);
     }));
 
   }
   public enum RotationPositions{
     //default value at the top
-    up(0.18),
+    //ADJUSTED DO NOT USE DIRECT ENCODER VALUE
+    up(0.40),
     //put down in grab mode 
-    down(0.75);
+    down(0.97);
 
     public final double position;
     RotationPositions(double pos){
@@ -45,7 +46,17 @@ public class intakeTilt extends SubsystemBase {
     }
   }
   public double getEncoderValue(){
-    return encoder.get();
+    //ADJUSTED DO NOT USE DIRECT ENCODER VALUE
+    double value = encoder.get();
+    if (encoder.get() < 0.10){
+      value = value + 0.9;
+    }
+    else{
+      if(encoder.get() > 0.10){
+        value = value - 0.10;
+      }
+    }
+    return value;
   }
   public double getRotateOutput(){
     double output = PID.calculate(getEncoderValue(), motorState.position);
@@ -57,6 +68,12 @@ public class intakeTilt extends SubsystemBase {
       output = -maxRotateSpeed;
     }
     return output;
+  }
+
+  public Command resetEncoder(){
+    return runOnce(()->{
+      encoder.setDutyCycleRange(0,1);
+    });
   }
 
   // public Command rotate(RotationPositions newState){

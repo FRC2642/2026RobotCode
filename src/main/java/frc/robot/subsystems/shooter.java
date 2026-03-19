@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,6 +22,8 @@ public class shooter extends SubsystemBase {
   public TalonFX BottomRightMotor = new TalonFX(18);
   public CurrentLimitsConfigs flyWheelCurrentLimits = new CurrentLimitsConfigs();
   public CurrentLimitsConfigs RollerCurrentLimits = new CurrentLimitsConfigs();
+
+  public PIDController softStartPID = new PIDController(1, 0, 0);
 
   public TalonFX rollerMotor = new TalonFX(21);
   //the three motors, named based on hight
@@ -42,15 +45,15 @@ public class shooter extends SubsystemBase {
 
   /** Creates a new shooter. */
   public shooter() {
-    topLeftMotor.setNeutralMode(NeutralModeValue.Brake);
-    topRightMotor.setNeutralMode(NeutralModeValue.Brake);
-    BottomLeftMotor.setNeutralMode(NeutralModeValue.Brake);
-    BottomLeftMotor.setNeutralMode(NeutralModeValue.Brake);
-    rollerMotor.setNeutralMode(NeutralModeValue.Brake);
+    topLeftMotor.setNeutralMode(NeutralModeValue.Coast);
+    topRightMotor.setNeutralMode(NeutralModeValue.Coast);
+    BottomLeftMotor.setNeutralMode(NeutralModeValue.Coast);
+    BottomLeftMotor.setNeutralMode(NeutralModeValue.Coast);
+    rollerMotor.setNeutralMode(NeutralModeValue.Coast);
     flyWheelCurrentLimits.SupplyCurrentLimitEnable = true; 
-    flyWheelCurrentLimits.SupplyCurrentLimit = 40.0;
+    flyWheelCurrentLimits.SupplyCurrentLimit = 15.0;
     RollerCurrentLimits.SupplyCurrentLimitEnable = true;
-    RollerCurrentLimits.SupplyCurrentLimit = 20.0;
+    RollerCurrentLimits.SupplyCurrentLimit = 40.0;
     topLeftMotor.getConfigurator().apply(flyWheelCurrentLimits);
     topRightMotor.getConfigurator().apply(flyWheelCurrentLimits);
     BottomLeftMotor.getConfigurator().apply(flyWheelCurrentLimits);
@@ -84,6 +87,14 @@ public class shooter extends SubsystemBase {
   //   }));
   // }
 
+  public double getShooterSpeed(){
+    return topLeftMotor.get();
+  }
+
+  public double getShooterOutput(double speed){
+    return softStartPID.calculate(getShooterSpeed(), speed);
+  }
+
   public void setShooterSpeed(double speed){
     topLeftMotor.set(-speed);
     topRightMotor.set(speed);
@@ -106,10 +117,16 @@ public class shooter extends SubsystemBase {
       setShooterSpeed(speed);
     });
   }
+
+  public Command softStartShooterWheels(double speed){
+    double finalSpeed = 0;
+    return run(()->{
+    });
+  }
   public Command staticShoot(double speed){
     return run(()->{
       rollerMotor.set(-speed);
-      setShooterSpeed(0.7);
+      setShooterSpeed(1);
     });
   }
 

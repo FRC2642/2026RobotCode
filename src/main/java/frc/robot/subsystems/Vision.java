@@ -24,8 +24,8 @@ public RawFiducial[] fiducials;
   public Vision() {
     setDefaultCommand(run(()->{
       updateMeasurments();
-      System.out.println("tag in sight? "+LimelightHelpers.getTV("") );
-      System.out.println("distance: "+getDistance());
+      //System.out.println("tag in sight? "+LimelightHelpers.getTV("") );
+      //System.out.println("distance: "+getDistance());
       // System.out.println("measurments x: "+measuments[2]);
       // System.out.println("measurments y: "+measuments[0]);
       // System.out.println("measurments rot: "+measuments[4]);
