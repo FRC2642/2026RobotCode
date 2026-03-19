@@ -91,15 +91,19 @@ public class shooter extends SubsystemBase {
     BottomRightMotor.set(speed);
   }
   public enum shootModes{
-    at2meters(1),
-    at8feet(0),
-    at10feet(0);
+    somethingtoputhere(1);
     //the names are for the motors they corrolate to I was running out of ways to discribe top and bottom
     public final double position;
     shootModes(double pos){
       position = pos; 
     }
   }
+public double getRPM(){
+double ticksPer100ms = topLeftMotor.getVelocity().getValueAsDouble();
+        double ticksPerRev = 2048.0; // Falcon 500 encoder resolution
+        double rps = (ticksPer100ms * 10) / ticksPerRev;
+        return rps * 60.0;
+    } 
 
   public Command runShooterWheels(double speed){
     return run(()->{
