@@ -101,7 +101,7 @@ public RawFiducial[] fiducials;
     return -output;
   }
   public double getDriveOutput(){
-    double output = drivePID.calculate(getDistance(), 1.27);
+    double output = drivePID.calculate(getDistance(), 1.4);
     if (output < -1.27){
       output = -1;
     }
