@@ -107,7 +107,7 @@ public class RobotContainer {
                 .withVelocityY(-controller.getLeftX() * MaxSpeed)
                 .withRotationalRate(vision.getRotateOutput())));
     //SHOOT
-        controller.rightBumper().whileTrue(shooterSub.staticShoot(1,1)
+        controller.rightBumper().whileTrue(shooterSub.staticShoot(0.8,0.7)
                                 .alongWith(intermediate.Spin(0.3)));
         controller.b().toggleOnTrue(shooterSub.runShooterWheels(1));
 
