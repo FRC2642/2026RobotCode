@@ -51,9 +51,9 @@ public class shooter extends SubsystemBase {
     BottomLeftMotor.setNeutralMode(NeutralModeValue.Coast);
     rollerMotor.setNeutralMode(NeutralModeValue.Coast);
     flyWheelCurrentLimits.SupplyCurrentLimitEnable = true; 
-    flyWheelCurrentLimits.SupplyCurrentLimit = 15.0;
+    flyWheelCurrentLimits.SupplyCurrentLimit = 20.0;
     RollerCurrentLimits.SupplyCurrentLimitEnable = true;
-    RollerCurrentLimits.SupplyCurrentLimit = 40.0;
+    RollerCurrentLimits.SupplyCurrentLimit = 20.0;
     topLeftMotor.getConfigurator().apply(flyWheelCurrentLimits);
     topRightMotor.getConfigurator().apply(flyWheelCurrentLimits);
     BottomLeftMotor.getConfigurator().apply(flyWheelCurrentLimits);
@@ -118,15 +118,10 @@ public class shooter extends SubsystemBase {
     });
   }
 
-  public Command softStartShooterWheels(double speed){
-    double finalSpeed = 0;
+  public Command staticShoot(double rollerSpeed, double flyWheelSpeed){
     return run(()->{
-    });
-  }
-  public Command staticShoot(double speed){
-    return run(()->{
-      rollerMotor.set(-speed);
-      setShooterSpeed(1);
+      rollerMotor.set(-rollerSpeed);
+      setShooterSpeed(flyWheelSpeed);
     });
   }
 

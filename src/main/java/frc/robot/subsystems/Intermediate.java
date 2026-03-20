@@ -19,7 +19,7 @@ public class Intermediate extends SubsystemBase {
   public Intermediate() {
     SpinMotor.setNeutralMode(NeutralModeValue.Brake);
     motorCurrentLimits.SupplyCurrentLimitEnable = true; 
-    motorCurrentLimits.SupplyCurrentLimit = 30.0;
+    motorCurrentLimits.SupplyCurrentLimit = 20.0;
     SpinMotor.getConfigurator().apply(motorCurrentLimits);
     
     setDefaultCommand(runOnce(()->{

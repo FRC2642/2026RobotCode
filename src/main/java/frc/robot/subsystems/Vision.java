@@ -24,11 +24,11 @@ public RawFiducial[] fiducials;
   public Vision() {
     setDefaultCommand(run(()->{
       updateMeasurments();
-      //System.out.println("tag in sight? "+LimelightHelpers.getTV("") );
-      //System.out.println("distance: "+getDistance());
-      // System.out.println("measurments x: "+measuments[2]);
-      // System.out.println("measurments y: "+measuments[0]);
-      // System.out.println("measurments rot: "+measuments[4]);
+      System.out.println("tag in sight? "+LimelightHelpers.getTV("") );
+      System.out.println("distance: "+getDistance());
+      System.out.println("measurments x: "+measuments[2]);
+      System.out.println("measurments y: "+measuments[0]);
+      System.out.println("measurments rot: "+measuments[4]);
     }));
   }
 
@@ -50,7 +50,7 @@ public RawFiducial[] fiducials;
     });
   }
 // FOR CLIMB ALLIGNMENT (NATE)
-      public double getOutputX(){
+    public double getOutputX(){
     updateMeasurments();
     double output = climbXPID.calculate(measuments[2], -1.338);
     if (output > maxSpeed){
@@ -98,7 +98,7 @@ public RawFiducial[] fiducials;
     if (output < -1){
       output = -1;
     }
-    return output;
+    return -output;
   }
   public double getDriveOutput(){
     double output = drivePID.calculate(getDistance(), 1.27);

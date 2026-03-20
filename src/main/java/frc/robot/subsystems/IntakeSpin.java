@@ -19,7 +19,7 @@ public class IntakeSpin extends SubsystemBase {
   public IntakeSpin(){
     spinMotor.setNeutralMode(NeutralModeValue.Brake);
     motorCurrentLimits.SupplyCurrentLimitEnable = true; 
-    motorCurrentLimits.SupplyCurrentLimit = 30.0;
+    motorCurrentLimits.SupplyCurrentLimit = 20.0;
     spinMotor.getConfigurator().apply(motorCurrentLimits);
     setDefaultCommand(runOnce(()->{
       spinMotor.set(0);

@@ -13,10 +13,12 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -61,11 +63,11 @@ public class RobotContainer {
     public final Intermediate intermediate = new Intermediate();
     public final Vision vision = new Vision();
     public final intakeTilt intakeTilt = new intakeTilt();
-    public final Dashboard dash = new Dashboard(vision);
     public final IntakeSpin intakeSpin = new IntakeSpin();
     public final shooter shooterSub = new shooter();
     public final shooterTilt shooterTiltSub = new shooterTilt();
-    public final Climby Climby = new Climby();
+    public final Climby climby = new Climby();
+    public final Dashboard dash = new Dashboard(vision, controller, intakeTilt);
 
    //private final SendableChooser<Command> autoChooser;
     public RobotContainer() {
@@ -74,9 +76,9 @@ public class RobotContainer {
         //autoChooser = AutoBuilder.buildAutoChooser();
             //make the autos so they show up in the auto selector
         //SmartDashboard.putData("Auto Chooser", autoChooser);
-        NamedCommands.registerCommand("shoot", intakeTilt.toggleRotate()
-                    .alongWith(shooterSub.autoShootCommand()
-                    .alongWith(intermediate.autoSpinCommand())));
+        // NamedCommands.registerCommand("shoot", intakeTilt.toggleRotate()
+        //             .alongWith(shooterSub.autoShootCommand()
+        //             .alongWith(intermediate.autoSpinCommand())));
         // autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
         // autoChooser.addOption("Back And Shoot", new PathPlannerAuto("Shoot Auto"));
         //create named commands
@@ -95,33 +97,31 @@ public class RobotContainer {
                 drive.withVelocityX(-controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed)
                     .withVelocityY(-controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) 
                     .withRotationalRate(MaxAngularRate)));
-    //RESET GYRO  
-        controller.rightTrigger().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-        controller.rightTrigger().onTrue(intakeTilt.resetEncoder());
+    //RESET GYRO
+        controller.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        //controller.rightTrigger().onTrue(intakeTilt.resetEncoder());
     //AUTO AIM
-        controller.leftBumper().whileTrue(
+        controller.y().whileTrue(
             drivetrain.applyRequest(()->
             robotDrive.withVelocityX(vision.getDriveOutput())
                 .withVelocityY(-controller.getLeftX() * MaxSpeed)
                 .withRotationalRate(vision.getRotateOutput())));
     //SHOOT
-        controller.rightBumper().whileTrue(shooterSub.staticShoot(1)
+        controller.rightBumper().whileTrue(shooterSub.staticShoot(1,1)
                                 .alongWith(intermediate.Spin(0.3)));
         controller.b().toggleOnTrue(shooterSub.runShooterWheels(1));
 
-    {//(NOT USED FOR ASHVILLE COMP)
+    {//(NOT USED FOR WAKE COMP)
         //controller.a().whileTrue(shooterTiltSub.manualTilt(0.1));
-    //(NOT USED FOR ASHVILLE COMP)
+    //(NOT USED FOR WAKE COMP)
         //controller.rightBumper().onTrue(intakeTilt.rotateToShoot());
-    //(NOT USED FOR ASHVILLE COMP)
+    //(NOT USED FOR WAKE COMP)
         //controller.b().onTrue(shooterTiltSub.tilt(tiltStates.top));
     }
-    
-        auxController.x().whileTrue((shooterSub.staticShoot(-0.5)
+    //REVERSE REVERSE
+        auxController.x().whileTrue((shooterSub.staticShoot(-0.5, -0.5)
                                 .alongWith(intermediate.Spin(-0.75))));
     //INTERMEDIATE
-        controller.x().whileTrue(intermediate.Spin(0.75));
-        controller.y().whileTrue(intermediate.Spin(-0.3));
         auxController.leftTrigger().whileTrue(intermediate.Spin(-0.3));
         auxController.rightTrigger().whileTrue(intermediate.Spin(0.75));
     //INTAKE TOGGLE
@@ -129,17 +129,17 @@ public class RobotContainer {
         auxController.b().whileTrue(intakeSpin.spin(0.4));
         auxController.y().whileTrue(intakeSpin.spin(-0.4));
     //MANUAL INTAKE TILT
-        auxController.rightBumper().whileTrue(intakeTilt.manualIntake(0.1));
-        auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-0.1));
-    //CLIMB ALLIGNMENT (NATE) 
-    //(NOT USED FOR ASHVILLE COMP)
+        auxController.rightBumper().whileTrue(intakeTilt.manualIntake(0.5));
+        auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-0.5));
+    {//CLIMB ALLIGNMENT (NATE) 
+    //(NOT USED FOR WAKE COMP)
         // auxController.x().whileTrue(
         // drivetrain.applyRequest(()->
         //     robotDrive.withVelocityX(vision.getOutputX())
         //         .withVelocityY(vision.getOutputY())
         //         .withRotationalRate(vision.getOutputRot())));
     //CLIMB
-    //(NOT USED FOR ASHVILLE COMP)
+    //(NOT USED FOR WAKE COMP)
         // auxController.povUp().whileTrue(Climby.manualClimb(0.1));
         // auxController.povDown().whileTrue(Climby.manualClimb(-0.1));
         // //joystick.b().onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
@@ -147,8 +147,9 @@ public class RobotContainer {
         // buttonBoard.button(2).onTrue(Climby.climbUp().andThen(Climby.climbUp()));
         // buttonBoard.button(3).onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
         // buttonBoard.button(0).onTrue(Climby.climbDown());
+}
 
-
+    //DASHBOARD
 
     //what does any of this do? Who knows. I'm not gonna touch it tho
         {final var idle = new SwerveRequest.Idle();
@@ -183,15 +184,16 @@ public class RobotContainer {
         );*/
         //return new PathPlannerAuto("Shoot Auto");
         
-        return drivetrain.applyRequest(() ->
-                drive.withVelocityX(-0.5)
-                    .withVelocityY(0)
-                    .withRotationalRate(0)
-            ).withTimeout(2)
-            .andThen(intakeTilt.toggleRotate()
-                    .alongWith(shooterSub.autoShootCommand()
-                    .alongWith(intermediate.autoSpinCommand())));
+        // return drivetrain.applyRequest(() ->
+        //         drive.withVelocityX(-0.5)
+        //             .withVelocityY(0)
+        //             .withRotationalRate(0)
+        //     ).withTimeout(2)
+        //     .andThen(intakeTilt.toggleRotate()
+        //             .alongWith(shooterSub.autoShootCommand()
+        //             .alongWith(intermediate.autoSpinCommand())));
         //intakeTilt.toggleRotate().alongWith(shooterSub.autoShootCommand().alongWith(intermediate.autoSpinCommand()));
+        return Commands.print("No auto enabled");
     }
     
 }

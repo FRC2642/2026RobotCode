@@ -133,7 +133,7 @@ public class Climby extends SubsystemBase {
   }
   
   //to constrain my power level and epicness
-  public double constrain (double value, double min, double max){
+  public static double constrain (double value, double min, double max){
     if (max < min){
       return (constrain(value, max, min));
     }

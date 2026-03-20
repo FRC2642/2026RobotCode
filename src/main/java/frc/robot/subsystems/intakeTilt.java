@@ -28,7 +28,7 @@ public class intakeTilt extends SubsystemBase {
   public intakeTilt() {
     tiltMotor.setNeutralMode(NeutralModeValue.Brake);
     setDefaultCommand(runOnce(()->{
-      System.out.println("tilt encoder: "+ getEncoderValue());
+      //System.out.println("tilt encoder: "+ getEncoderValue());
       tiltMotor.set(0);
     }));
 
@@ -68,12 +68,6 @@ public class intakeTilt extends SubsystemBase {
       output = -maxRotateSpeed;
     }
     return output;
-  }
-
-  public Command resetEncoder(){
-    return runOnce(()->{
-      encoder.setDutyCycleRange(0,1);
-    });
   }
 
   // public Command rotate(RotationPositions newState){
