@@ -72,13 +72,11 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
         autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
+        autoChooser.addOption("Shoot", new PathPlannerAuto("Shoot Auto"));
         //create named commands
-        //these are all the robot to perform certain actions during auto
+        //these are all the commands to perform certain actions during auto
         NamedCommands.registerCommand("shoot", shooterSub.shoot(1));
-
-
-        //named commands for autos
-        //NamedCommands.registerCommand(null, );
+        NamedCommands.registerCommand("intermediate", intermediate.Spin(MaxSpeed));
     }
     private void configureBindings() {
         //DEFAULT SWERVE
@@ -86,7 +84,7 @@ public class RobotContainer {
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(-controller.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-controller.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-controller.getRightX() * MaxAngularRate))); // Drive counterclockwise with negative X (left)
+                    .withRotationalRate(-controller.getRightX() * MaxAngularRate))); // Rotate counterclockwise with negative X (left)
         //RESET GYRO
         controller.rightTrigger().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
         //AUTO AIM
