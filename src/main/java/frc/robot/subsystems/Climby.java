@@ -34,7 +34,7 @@ public class Climby extends SubsystemBase {
     public double rotationSpeed = 40; 
 
     //I probably understand this now.
-    public TalonFX climbMotor = new TalonFX(0);
+    public TalonFX climbMotor = new TalonFX(23);
     //public Encoder climbEncoder = new Encoder(0,1);
     public PIDController PID = new PIDController(1, 0, 0);
     public RotationPositions motorState;
@@ -44,7 +44,11 @@ public class Climby extends SubsystemBase {
     
   //I might know what this means.
   public Climby(){
+    climbMotor.setNeutralMode(NeutralModeValue.Coast);
     doAbsolutelyNothingForNoReasonBecauseWhyNot();
+    setDefaultCommand(run(()->{
+      climbMotor.set(0);
+    }));
   }
 
   //This fuction climbs up until it reaches the Target Value, and then goes down to zero.
@@ -59,6 +63,14 @@ public class Climby extends SubsystemBase {
       currentTarget = 0;
       climbMotor.set(climbMotorOutput(currentTarget));
     })).until(positionReached);
+  }
+
+  public Command manualClimb(double speed){
+    return run(()->{
+      climbMotor.set(speed);
+    }).andThen(run(()->{
+      climbMotor.set(0);
+    }));
   }
  
   //Do it just cuz.
@@ -121,7 +133,7 @@ public class Climby extends SubsystemBase {
   }
   
   //to constrain my power level and epicness
-  public double constrain (double value, double min, double max){
+  public static double constrain (double value, double min, double max){
     if (max < min){
       return (constrain(value, max, min));
     }
