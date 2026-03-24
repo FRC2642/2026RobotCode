@@ -69,7 +69,7 @@ public class RobotContainer {
     public final Climby climby = new Climby();
     public final Dashboard dash = new Dashboard(vision, controller, intakeTilt);
 
-   //private final SendableChooser<Command> autoChooser;
+   private final SendableChooser<Command> autoChooser;
     public RobotContainer() {
         configureBindings();
 
@@ -80,8 +80,8 @@ public class RobotContainer {
         autoChooser.addOption("Shoot", new PathPlannerAuto("Shoot Auto"));
         //create named commands
         //these are all the commands to perform certain actions during auto
-        NamedCommands.registerCommand("shoot", shooterSub.shoot(1));
-        NamedCommands.registerCommand("intermediate", intermediate.Spin(MaxSpeed));
+        NamedCommands.registerCommand("shoot", shooterSub.staticShoot(.8, .7));
+        NamedCommands.registerCommand("intermediate", intermediate.Spin(.3));
     }
     private void configureBindings() {
     //DEFAULT SWERVE
@@ -180,7 +180,7 @@ public class RobotContainer {
             // Finally idle for the rest of auton
             drivetrain.applyRequest(() -> idle)
         );*/
-        //return new PathPlannerAuto("Shoot Auto");
+        return autoChooser.getSelected();
         
         // return drivetrain.applyRequest(() ->
         //         drive.withVelocityX(-0.5)
@@ -191,7 +191,7 @@ public class RobotContainer {
         //             .alongWith(shooterSub.autoShootCommand()
         //             .alongWith(intermediate.autoSpinCommand())));
         //intakeTilt.toggleRotate().alongWith(shooterSub.autoShootCommand().alongWith(intermediate.autoSpinCommand()));
-        return Commands.print("No auto enabled");
+        //return Commands.print("No auto enabled");
     }
     
 }
