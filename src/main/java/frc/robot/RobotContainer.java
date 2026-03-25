@@ -69,21 +69,19 @@ public class RobotContainer {
     public final Climby climby = new Climby();
     public final Dashboard dash = new Dashboard(vision, controller, intakeTilt);
 
-   //private final SendableChooser<Command> autoChooser;
+   private final SendableChooser<Command> autoChooser;
     public RobotContainer() {
         configureBindings();
-        {
-        //autoChooser = AutoBuilder.buildAutoChooser();
-            //make the autos so they show up in the auto selector
-        //SmartDashboard.putData("Auto Chooser", autoChooser);
-        // NamedCommands.registerCommand("shoot", intakeTilt.toggleRotate()
-        //             .alongWith(shooterSub.autoShootCommand()
-        //             .alongWith(intermediate.autoSpinCommand())));
-        // autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
-        // autoChooser.addOption("Back And Shoot", new PathPlannerAuto("Shoot Auto"));
+
+        //make the autos so they show up in the auto selector
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+        autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
+        autoChooser.addOption("Shoot", new PathPlannerAuto("Shoot Auto"));
         //create named commands
-        //these are all the robot to perform certain actions during auto
-        }
+        //these are all the commands to perform certain actions during auto
+        NamedCommands.registerCommand("shoot", shooterSub.staticShoot(.8, .7));
+        NamedCommands.registerCommand("intermediate", intermediate.Spin(.3));
     }
     private void configureBindings() {
     //DEFAULT SWERVE
@@ -184,7 +182,7 @@ public class RobotContainer {
             // Finally idle for the rest of auton
             drivetrain.applyRequest(() -> idle)
         );*/
-        //return new PathPlannerAuto("Shoot Auto");
+        return autoChooser.getSelected();
         
         // return drivetrain.applyRequest(() ->
         //         drive.withVelocityX(-0.5)
@@ -195,7 +193,7 @@ public class RobotContainer {
         //             .alongWith(shooterSub.autoShootCommand()
         //             .alongWith(intermediate.autoSpinCommand())));
         //intakeTilt.toggleRotate().alongWith(shooterSub.autoShootCommand().alongWith(intermediate.autoSpinCommand()));
-        return Commands.print("No auto enabled");
+        //return Commands.print("No auto enabled");
     }
     
 }
