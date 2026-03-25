@@ -89,13 +89,13 @@ public class RobotContainer {
     //DEFAULT SWERVE
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive left with negative X (left)
+                drive.withVelocityX(controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-controller.getRightX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxAngularRate))); // Drive counterclockwise with negative X (left)
 
         auxController.povUp().whileTrue(drivetrain.applyRequest(() ->
-                drive.withVelocityX(-controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed)
-                    .withVelocityY(-controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) 
+                drive.withVelocityX(controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed)
+                    .withVelocityY(controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) 
                     .withRotationalRate(MaxAngularRate)));
     //RESET GYRO
         controller.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
@@ -108,7 +108,7 @@ public class RobotContainer {
                 .withRotationalRate(vision.getRotateOutput())));
     //SHOOT
         controller.rightBumper().whileTrue(shooterSub.staticShoot(0.8,0.7)
-                                .alongWith(intermediate.Spin(0.3)));
+                                .alongWith(intermediate.Spin(0.75)));
         controller.b().toggleOnTrue(shooterSub.runShooterWheels(1));
 
     {//(NOT USED FOR WAKE COMP)
@@ -122,14 +122,16 @@ public class RobotContainer {
         auxController.x().whileTrue((shooterSub.staticShoot(-0.5, -0.5)
                                 .alongWith(intermediate.Spin(-0.75))));
     //INTERMEDIATE
-        auxController.leftTrigger().whileTrue(intermediate.Spin(-0.3));
+        auxController.leftTrigger().whileTrue(intermediate.Spin(-0.75));
         auxController.rightTrigger().whileTrue(intermediate.Spin(0.75));
     //INTAKE TOGGLE
         auxController.a().onTrue(intakeTilt.toggleRotate());
-        auxController.b().whileTrue(intakeSpin.spin(0.4));
-        auxController.y().whileTrue(intakeSpin.spin(-0.4));
+        auxController.b().whileTrue(intakeSpin.spin(0.40)
+                                .alongWith(intermediate.Spin(0.75)));
+        auxController.y().whileTrue(intakeSpin.spin(-0.40));
     //MANUAL INTAKE TILT
-        auxController.rightBumper().whileTrue(intakeTilt.manualIntake(0.5));
+        auxController.rightBumper().whileTrue(
+        intakeTilt.manualIntake(0.5));
         auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-0.5));
     {//CLIMB ALLIGNMENT (NATE) 
     //(NOT USED FOR WAKE COMP)
