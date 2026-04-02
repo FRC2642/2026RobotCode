@@ -6,13 +6,27 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.function.ToDoubleBiFunction;
+import java.util.function.ToDoubleFunction;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPLTVController;
+import com.pathplanner.lib.controllers.PathFollowingController;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
+import com.pathplanner.lib.util.DriveFeedforwards;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -69,19 +83,99 @@ public class RobotContainer {
     public final Climby climby = new Climby();
     public final Dashboard dash = new Dashboard(vision, controller, intakeTilt);
 
-   private final SendableChooser<Command> autoChooser;
+    public final SendableChooser<Command> autoChooser;
+    public RobotConfig config;
+    public Supplier<Pose2d> pose = new Supplier<Pose2d>() {
+        @Override
+        public Pose2d get() {
+            return drivetrain.getState().Pose;
+        }   
+    };
+    public Consumer<Pose2d> resetPose = new Consumer<Pose2d>() {
+
+        @Override
+        public void accept(Pose2d t) {
+            drivetrain.runOnce(drivetrain::seedFieldCentric);
+        }
+    };
+    public Supplier<ChassisSpeeds> sppeeds = new Supplier<ChassisSpeeds>() {
+
+        @Override
+        public ChassisSpeeds get() {
+            return drivetrain.getState().Speeds;
+        }
+    };
+    public BiConsumer<ChassisSpeeds, DriveFeedforwards> output = new BiConsumer<ChassisSpeeds,DriveFeedforwards>() {
+
+        @Override
+        public void accept(ChassisSpeeds t, DriveFeedforwards u) {
+            drivetrain.applyRequest(() ->
+                robotDrive.withVelocityX(MaxSpeed / 1) // Drive forward with negative Y (forward)
+                    .withVelocityY(MaxSpeed / 1) // Drive left with negative X (left)
+                    .withRotationalRate(MaxAngularRate / 1));
+        }
+        
+    };
+    public PathFollowingController pathController = new PathFollowingController() {
+
+        @Override
+        public ChassisSpeeds calculateRobotRelativeSpeeds(Pose2d currentPose, PathPlannerTrajectoryState targetState) {
+            return drivetrain.getState().Speeds;    
+        }
+
+        @Override
+        public void reset(Pose2d currentPose, ChassisSpeeds currentSpeeds) {
+            drivetrain.runOnce(drivetrain::seedFieldCentric);    
+        }
+
+        @Override
+        public boolean isHolonomic() {
+            return true;
+        }
+        
+    };
     public RobotContainer() {
         configureBindings();
+        try{
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+        // Handle exception as needed
+            e.printStackTrace();
+        }
 
+        AutoBuilder.configure(
+            pose, // Robot pose supplier
+            resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+            sppeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            output, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+            pathController, // PPLTVController is the built in path following controller for differential drive trains
+            config, // The robot configuration
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            drivetrain // Reference to this subsystem to set requirements
+    );
+
+        
         //make the autos so they show up in the auto selector
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
-        autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
-        autoChooser.addOption("Shoot", new PathPlannerAuto("Shoot Auto"));
+        autoChooser.setDefaultOption("Taxi Auto", new PathPlannerAuto("Taxi Auto"));
+        
+        
+        //autoChooser.addOption("Shoot", new PathPlannerAuto("Shoot Auto"));
         //create named commands
         //these are all the commands to perform certain actions during auto
-        NamedCommands.registerCommand("shoot", shooterSub.staticShoot(.8, .7));
-        NamedCommands.registerCommand("intermediate", intermediate.Spin(.3));
+        //NamedCommands.registerCommand("shoot", shooterSub.staticShoot(.8, .7));
+        //NamedCommands.registerCommand("intermediate", intermediate.Spin(.3));
     }
     private void configureBindings() {
     //DEFAULT SWERVE
@@ -166,33 +260,8 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        // Simple drive forward auton
-        /*final var idle = new SwerveRequest.Idle();
-        return Commands.sequence(
-            // Reset our field centric heading to match the robot
-            // facing away from our alliance station wall (0 deg).
-            drivetrain.runOnce(() -> drivetrain.seedFieldCentric(Rotation2d.kZero)),
-            // Then slowly drive forward (away from us) for 5 seconds.
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(0.5)
-                    .withVelocityY(0)
-                    .withRotationalRate(0)
-            )
-            .withTimeout(5.0),
-            // Finally idle for the rest of auton
-            drivetrain.applyRequest(() -> idle)
-        );*/
+        //return new PathPlannerAuto("Taxi Auto");
         return autoChooser.getSelected();
-        
-        // return drivetrain.applyRequest(() ->
-        //         drive.withVelocityX(-0.5)
-        //             .withVelocityY(0)
-        //             .withRotationalRate(0)
-        //     ).withTimeout(2)
-        //     .andThen(intakeTilt.toggleRotate()
-        //             .alongWith(shooterSub.autoShootCommand()
-        //             .alongWith(intermediate.autoSpinCommand())));
-        //intakeTilt.toggleRotate().alongWith(shooterSub.autoShootCommand().alongWith(intermediate.autoSpinCommand()));
         //return Commands.print("No auto enabled");
     }
     
