@@ -6,6 +6,10 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.io.IOException;
+
+import org.json.simple.parser.ParseException;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -13,6 +17,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,6 +46,9 @@ import frc.robot.subsystems.intakeTilt.RotationPositions;
 @SuppressWarnings("unused")
 
 public class RobotContainer {
+
+    private PathPlannerAuto auto;
+
     private final CommandJoystick buttonBoard = new CommandJoystick(2);
     private final CommandXboxController controller = new CommandXboxController(0);
     private final CommandXboxController auxController = new CommandXboxController(1);
@@ -70,18 +78,21 @@ public class RobotContainer {
     public final Dashboard dash = new Dashboard(vision, controller, intakeTilt);
 
    private final SendableChooser<Command> autoChooser;
-    public RobotContainer() {
-        configureBindings();
 
-        //make the autos so they show up in the auto selector
+    public RobotContainer() {
+
+        
+
+        // make the autos so they show up in the auto selector
         autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto Chooser", autoChooser);
         autoChooser.addOption("Taxi", new PathPlannerAuto("Taxi Auto"));
         autoChooser.addOption("Shoot", new PathPlannerAuto("Shoot Auto"));
+        SmartDashboard.putData("Auto Chooser", autoChooser);
         //create named commands
-        //these are all the commands to perform certain actions during auto
+        //these are commands to perform certain actions during auto
         NamedCommands.registerCommand("shoot", shooterSub.staticShoot(.8, .7));
         NamedCommands.registerCommand("intermediate", intermediate.Spin(.3));
+        configureBindings();
     }
     private void configureBindings() {
     //DEFAULT SWERVE
