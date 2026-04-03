@@ -55,6 +55,9 @@ import frc.robot.subsystems.intakeTilt.RotationPositions;
 @SuppressWarnings("unused")
 
 public class RobotContainer {
+
+    private PathPlannerAuto auto;
+
     private final CommandJoystick buttonBoard = new CommandJoystick(2);
     private final CommandXboxController controller = new CommandXboxController(0);
     private final CommandXboxController auxController = new CommandXboxController(1);
