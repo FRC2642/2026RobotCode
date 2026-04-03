@@ -30,18 +30,6 @@ public class shooter extends SubsystemBase {
   public shootModes shootMode;
   // fist distance is enum name second is verable name
   public static double position;
-    // 
-    //   public final double velocity(){
-    //   //       gravity     dist from goal            goalY-startY                                        allat times this                                           
-    //   return(((-9.81/2)*((Math.pow(getDistance, 2))/(1.828-0.4036-(Math.sin(shootAngle)/Math.cos(shootAngle))*distance)*(Math.pow(Math.cos(shootAngle), 2)))));
-    //   // x is place holder thing */
-    // }
-  // public static double shootAngle = 0.436332;
-  // public double topShooterSpeed = 0.00;
-  // public double bottonShooterSpeed = 0.00;
-  // public double wheelDiameter;
-      // public double RPM = (velocity() / (Math.PI*wheelDiameter));
-      //public double rotationSpeed = 1/RPM;
 
   /** Creates a new shooter. */
   public shooter() {
@@ -65,27 +53,6 @@ public class shooter extends SubsystemBase {
       rollerMotor.set(0);
     }));
   }
-  
-  // public Command shoot(double Distance){
-  //   return run(()-> {
-  //     topMotor.set(1*Distance);
-  //     intakeShooterMotor.set(-0.3*Distance);
-  // //bottonMotor.set(0*bottonShooterSpeed);
-  // // to use a enum I probley need a if statment but I don't know if we're going to be doing anything like that
-  // //so I guess this will stay not completed. YAY.
-  //   }).andThen(runOnce(()->{
-  //     topMotor.set(0);
-  //     intakeShooterMotor.set(0);
-  //   }));
-  // }
-
-  // public Command intakeShoot(){
-  //   return run(()->{
-  //     intakeShooterMotor.set(1);
-  //   }).andThen(runOnce(()->{
-  //     intakeShooterMotor.set(0);
-  //   }));
-  // }
 
   public double getShooterSpeed(){
     return topLeftMotor.get();

@@ -195,7 +195,6 @@ public class RobotContainer {
                     .withRotationalRate(MaxAngularRate)));
     //RESET GYRO
         controller.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-        //controller.rightTrigger().onTrue(intakeTilt.resetEncoder());
     //AUTO AIM
         controller.y().whileTrue(
             drivetrain.applyRequest(()->
@@ -206,14 +205,6 @@ public class RobotContainer {
         controller.rightBumper().whileTrue(shooterSub.staticShoot(0.8,0.7)
                                 .alongWith(intermediate.Spin(0.75)));
         controller.b().toggleOnTrue(shooterSub.runShooterWheels(1));
-
-    {//(NOT USED FOR WAKE COMP)
-        //controller.a().whileTrue(shooterTiltSub.manualTilt(0.1));
-    //(NOT USED FOR WAKE COMP)
-        //controller.rightBumper().onTrue(intakeTilt.rotateToShoot());
-    //(NOT USED FOR WAKE COMP)
-        //controller.b().onTrue(shooterTiltSub.tilt(tiltStates.top));
-    }
     //REVERSE REVERSE
         auxController.x().whileTrue((shooterSub.staticShoot(-0.5, -0.5)
                                 .alongWith(intermediate.Spin(-0.75))));
@@ -228,25 +219,7 @@ public class RobotContainer {
     //MANUAL INTAKE TILT
         auxController.rightBumper().whileTrue(intakeTilt.manualIntake(0.1));
         auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-0.1));
-    {//CLIMB ALLIGNMENT (NATE) 
-    //(NOT USED FOR WAKE COMP)
-        // auxController.x().whileTrue(
-        // drivetrain.applyRequest(()->
-        //     robotDrive.withVelocityX(vision.getOutputX())
-        //         .withVelocityY(vision.getOutputY())
-        //         .withRotationalRate(vision.getOutputRot())));
-    //CLIMB
-    //(NOT USED FOR WAKE COMP)
-        // auxController.povUp().whileTrue(Climby.manualClimb(0.1));
-        // auxController.povDown().whileTrue(Climby.manualClimb(-0.1));
-        // //joystick.b().onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
-        // buttonBoard.button(1).onTrue(Climby.climbUp());
-        // buttonBoard.button(2).onTrue(Climby.climbUp().andThen(Climby.climbUp()));
-        // buttonBoard.button(3).onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
-        // buttonBoard.button(0).onTrue(Climby.climbDown());
-}
-
-    //DASHBOARD
+    
 
     //what does any of this do? Who knows. I'm not gonna touch it tho
         {final var idle = new SwerveRequest.Idle();
@@ -261,7 +234,6 @@ public class RobotContainer {
         controller.start().and(controller.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
         drivetrain.registerTelemetry(logger::telemeterize);}
     }
-
     public Command getAutonomousCommand() {
         //return new PathPlannerAuto("Taxi Auto");
         return autoChooser.getSelected();

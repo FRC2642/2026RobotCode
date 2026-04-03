@@ -22,6 +22,8 @@ Godspeed.
 "The only thing I have to declare is my genius."
     -Oscar Wilde
 
+ITS MORBIN' TIME
+
 I wanna fly
 Can you take me far away?
 Give me a star to reach for
@@ -35,5 +37,135 @@ I bought these dreams
 That all fall down
 
 WHAT IS AN ENUM VARIABLE???????????????????
+
+==============================================================================
+Code Graveyard
+------------------------------------------------------------------------------
+Intake Tilt For Shooting by Miles Cook
+    controller.rightBumper().onTrue(intakeTilt.rotateToShoot());
+    public Command rotateToShoot(){
+        return run(()->{
+        motorState = RotationPositions.up;
+        tiltMotor.set(0.1);
+        }).until(positionReached).andThen(runOnce(()->{
+        tiltMotor.set(0);
+        }));
+    }
+------------------------------------------------------------------------------ 
+Shooter Tilt Commands by Miles Cook
+    controller.a().whileTrue(shooterTiltSub.manualTilt(0.1));
+    controller.b().onTrue(shooterTiltSub.tilt(tiltStates.top));
+------------------------------------------------------------------------------
+Intake Tilt Encoder Reset by Miles Cook
+    controller.rightTrigger().onTrue(intakeTilt.resetEncoder());
+------------------------------------------------------------------------------
+Original Intake Toggle by Jacob Gabriel
+    public Command decideRotation(RotationPositions motorState){
+        if (motorState==RotationPositions.up) {
+        return new RunCommand(()->{
+            System.out.println("rotate down");
+            rotate(RotationPositions.down);
+        });
+        } else {
+        return new RunCommand(()->{
+            System.out.println("rotate up");
+            rotate(RotationPositions.up);
+        });
+        } 
+    }
+------------------------------------------------------------------------------
+Vision Auto Align for Climbing by Nathan Johnson 
+    auxController.x().whileTrue(
+    drivetrain.applyRequest(()->
+        robotDrive.withVelocityX(vision.getOutputX())
+            .withVelocityY(vision.getOutputY())
+            .withRotationalRate(vision.getOutputRot())));
+------------------------------------------------------------------------------
+Climing Controls by Rem Angeles
+    auxController.povUp().whileTrue(Climby.manualClimb(0.1));
+    auxController.povDown().whileTrue(Climby.manualClimb(-0.1));
+    joystick.b().onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
+    buttonBoard.button(1).onTrue(Climby.climbUp());
+    buttonBoard.button(2).onTrue(Climby.climbUp().andThen(Climby.climbUp()));
+    buttonBoard.button(3).onTrue(Climby.climbUp().andThen(Climby.climbUp()).andThen(Climby.climbUp()));
+    buttonBoard.button(0).onTrue(Climby.climbDown());
+------------------------------------------------------------------------------
+Climby by Rem Angeles
+RIP I wish we could've run this at a competition
+------------------------------------------------------------------------------
+Climb Up by Rem Angeles
+    public Command climbUp(){
+        return new RunCommand(()->{
+            //Do you know where the *up* function goes? That's right! It goes in the *up* hole.
+            currentTarget = targetHeight;
+            climbMotor.set(climbMotorOutput(currentTarget));
+        }).until(positionReached).andThen(new RunCommand(()->{
+            //Now it goes back down so that it can humble itself.
+            currentTarget = 0;
+            climbMotor.set(climbMotorOutput(currentTarget));
+        })).until(positionReached);
+    }
+------------------------------------------------------------------------------
+Climb Down Rem Angeles
+    public Command climbDown(){
+        //You guessed it! The climb down function goes in the *up* hole.
+        return new RunCommand(()->{
+            setcurrentTarget(targetHeight);
+            climbMotor.set(climbMotorOutput(targetHeight));
+        }).until(positionReached);
+    }
+------------------------------------------------------------------------------
+Manual Climb Rem Angeles
+    public Command manualClimb(double speed){
+        return run(()->{
+            climbMotor.set(speed);
+        }).andThen(run(()->{
+            climbMotor.set(0);
+        }));
+    }
+------------------------------------------------------------------------------
+Shooter Physics Calculation by Jacob Gabriel and Collin Ramirez
+    public final double velocity(){                                         
+        return(((-9.81/2)*((Math.pow(getDistance, 2))/(1.828-0.4036-(Math.sin(shootAngle)/Math.cos(shootAngle))*distance)*(Math.pow(Math.cos(shootAngle), 2)))));
+    }
+    public static double shootAngle = 0.436332;
+    public double topShooterSpeed = 0.00;
+    public double bottonShooterSpeed = 0.00;
+    public double wheelDiameter;
+        public double RPM = (velocity() / (Math.PI*wheelDiameter));
+        public double rotationSpeed = 1/RPM;
+------------------------------------------------------------------------------
+Original Shooter Code by Collin Ramirez
+    public Command shoot(double Distance){
+        return run(()-> {
+            topMotor.set(1*Distance);
+            intakeShooterMotor.set(-0.3*Distance);
+            bottonMotor.set(0*bottonShooterSpeed);
+        }).andThen(runOnce(()->{
+            topMotor.set(0);
+            intakeShooterMotor.set(0);
+        }));
+    }
+------------------------------------------------------------------------------
+Shooter Intake Command by Collin Ramirez
+    public Command intakeShoot(){
+        return run(()->{
+            intakeShooterMotor.set(1);
+        }).andThen(runOnce(()->{
+            intakeShooterMotor.set(0);
+        }));
+    }
+------------------------------------------------------------------------------
+Shooter Enum by Collin Ramirez
+    public enum shootModes{
+        at2meters(1),
+        at8feet(0),
+        at10feet(0);
+    public final double position;
+        shootModes(double pos){
+            position = pos; 
+        }
+    }
+==============================================================================
 
 

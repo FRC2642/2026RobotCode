@@ -70,13 +70,6 @@ public class intakeTilt extends SubsystemBase {
     return output;
   }
 
-  // public Command rotate(RotationPositions newState){
-  //   return new RunCommand(()->{
-  //     motorState = newState;
-  //     tiltMotor.set(getRotateOutput());
-  //   }).until(positionReached);
-  // }
-
   public Command toggleRotate(){
     return runOnce(()->{
       System.out.println("toggled");
@@ -103,30 +96,6 @@ public class intakeTilt extends SubsystemBase {
     return run(()->{
       tiltMotor.set(speed);
     });
-  }
-
-  public Command rotateToShoot(){
-    return run(()->{
-      motorState = RotationPositions.up;
-      tiltMotor.set(0.1);
-    }).until(positionReached).andThen(runOnce(()->{
-      tiltMotor.set(0);
-    }));
-  }
-
-
-  public Command decideRotation(RotationPositions motorState){
-    if (motorState==RotationPositions.up) {
-      return new RunCommand(()->{
-        System.out.println("rotate down");
-        rotate(RotationPositions.down);
-      });
-    } else {
-      return new RunCommand(()->{
-        System.out.println("rotate up");
-        rotate(RotationPositions.up);
-    });
-    } 
   }
   @Override
   public void periodic() {
