@@ -162,7 +162,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
 
-        private void ConfigureAutoBuilder() {
+        public void ConfigureAutoBuilder() {
         try{
             RobotConfig = com.pathplanner.lib.config.RobotConfig.fromGUISettings();
         } catch (Exception e) {
@@ -171,6 +171,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         // PathPlanner; Configure AutoBuilder
+        System.out.println("--------------------Configure Auto Builder----------------");
         AutoBuilder.configure(
                 () -> getState().Pose, // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)

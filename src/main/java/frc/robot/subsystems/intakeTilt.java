@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class intakeTilt extends SubsystemBase {
   public double maxRotateSpeed = 1;
-  public PIDController PID = new PIDController(2,0,0);
+  public PIDController PID = new PIDController(3,0.1,0);
 
   public RotationPositions motorState = RotationPositions.up;
 
@@ -22,13 +22,13 @@ public class intakeTilt extends SubsystemBase {
   public TalonFX tiltMotor = new TalonFX(14);
   public DutyCycleEncoder encoder = new DutyCycleEncoder(9);
 
-  public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.01);
+  public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.008);
 
   /** Creates a new intakeTilt. */
   public intakeTilt() {
     tiltMotor.setNeutralMode(NeutralModeValue.Brake);
     setDefaultCommand(runOnce(()->{
-      //System.out.println("tilt encoder: "+ getEncoderValue());
+      System.out.println("tilt encoder: "+ getEncoderValue());
       tiltMotor.set(0);
     }));
 
@@ -36,9 +36,9 @@ public class intakeTilt extends SubsystemBase {
   public enum RotationPositions{
     //default value at the top
     //ADJUSTED DO NOT USE DIRECT ENCODER VALUE
-    up(0.40),
+    up(0.59),
     //put down in grab mode 
-    down(0.97);
+    down(0.945);
 
     public final double position;
     RotationPositions(double pos){
@@ -48,12 +48,12 @@ public class intakeTilt extends SubsystemBase {
   public double getEncoderValue(){
     //ADJUSTED DO NOT USE DIRECT ENCODER VALUE
     double value = encoder.get();
-    if (encoder.get() < 0.10){
-      value = value + 0.9;
+    if (encoder.get() < 0.30){
+      value = value + 0.7;
     }
     else{
-      if(encoder.get() > 0.10){
-        value = value - 0.10;
+      if(encoder.get() > 0.30){
+        value = value - 0.30;
       }
     }
     return value;

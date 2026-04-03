@@ -169,6 +169,7 @@ public class RobotContainer {
 
         
         //make the autos so they show up in the auto selector
+        drivetrain.ConfigureAutoBuilder();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
         autoChooser.setDefaultOption("Taxi Auto", new PathPlannerAuto("Taxi Auto"));
@@ -225,9 +226,8 @@ public class RobotContainer {
                                 .alongWith(intermediate.Spin(0.75)));
         auxController.y().whileTrue(intakeSpin.spin(-0.40));
     //MANUAL INTAKE TILT
-        auxController.rightBumper().whileTrue(
-        intakeTilt.manualIntake(0.5));
-        auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-0.5));
+        auxController.rightBumper().whileTrue(intakeTilt.manualIntake(0.1));
+        auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-0.1));
     {//CLIMB ALLIGNMENT (NATE) 
     //(NOT USED FOR WAKE COMP)
         // auxController.x().whileTrue(
