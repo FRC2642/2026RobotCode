@@ -11,7 +11,6 @@
           }
         },
         {
-<<<<<<< HEAD
           "type": "parallel",
           "data": {
             "commands": [
@@ -28,11 +27,6 @@
                 }
               }
             ]
-=======
-          "type": "named",
-          "data": {
-            "name": "shoot"
->>>>>>> 159f14250e9323d2570186a85a972029d3150a77
           }
         }
       ]
