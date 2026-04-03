@@ -27,7 +27,6 @@ public class shooter extends SubsystemBase {
 
   public TalonFX rollerMotor = new TalonFX(21);
   //the three motors, named based on hight
-  public shootModes shootMode;
   // fist distance is enum name second is verable name
   public static double position;
 
@@ -67,16 +66,6 @@ public class shooter extends SubsystemBase {
     topRightMotor.set(speed);
     BottomLeftMotor.set(-speed);
     BottomRightMotor.set(speed);
-  }
-  public enum shootModes{
-    at2meters(1),
-    at8feet(0),
-    at10feet(0);
-    //the names are for the motors they corrolate to I was running out of ways to discribe top and bottom
-    public final double position;
-    shootModes(double pos){
-      position = pos; 
-    }
   }
 
   public Command runShooterWheels(double speed){
