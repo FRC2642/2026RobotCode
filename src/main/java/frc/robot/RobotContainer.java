@@ -172,7 +172,7 @@ public class RobotContainer {
         drivetrain.ConfigureAutoBuilder();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
-        autoChooser.setDefaultOption("Taxi Auto", new PathPlannerAuto("Taxi Auto"));
+        autoChooser.setDefaultOption("Disruptor Auto 1", new PathPlannerAuto("Disruptor Auto 1"));
         
         
         //autoChooser.addOption("Shoot", new PathPlannerAuto("Shoot Auto"));
@@ -202,23 +202,29 @@ public class RobotContainer {
                 .withVelocityY(-controller.getLeftX() * MaxSpeed)
                 .withRotationalRate(vision.getRotateOutput())));
     //SHOOT
-        controller.rightBumper().whileTrue(shooterSub.staticShoot(0.8,0.7)
-                                .alongWith(intermediate.Spin(0.75)));
-        controller.b().toggleOnTrue(shooterSub.runShooterWheels(1));
+        controller.rightBumper().whileTrue(shooterSub.runShooterWheels(0.4,0.8,0.6)
+                .alongWith(intermediate.Spin(0.4)));
+
+    //Shooter testing (12,11,10,8,7,1)
+        // buttonBoard.button(12).whileTrue(shooterSub.TestShooterMotors(1, 1));
+        // buttonBoard.button(11).whileTrue(shooterSub.TestShooterMotors(2, 1));
+        // buttonBoard.button(10).whileTrue(shooterSub.TestShooterMotors(3, 1));
+        // buttonBoard.button(8).whileTrue(shooterSub.TestShooterMotors(4, 1));
+        // buttonBoard.button(7).whileTrue(shooterSub.TestShooterMotors(5, 1));
+
+
     //REVERSE REVERSE
         auxController.x().whileTrue((shooterSub.staticShoot(-0.5, -0.5)
-                                .alongWith(intermediate.Spin(-0.75))));
-    //INTERMEDIATE
-        auxController.leftTrigger().whileTrue(intermediate.Spin(-0.75));
-        auxController.rightTrigger().whileTrue(intermediate.Spin(0.75));
-    //INTAKE TOGGLE
+                                .alongWith(intermediate.Spin(-0.45))));
+    
+    //INTAKE
         auxController.a().onTrue(intakeTilt.toggleRotate());
         auxController.b().whileTrue(intakeSpin.spin(0.40)
-                                .alongWith(intermediate.Spin(0.75)));
-        auxController.y().whileTrue(intakeSpin.spin(-0.40));
+                                .alongWith(intermediate.Spin(0.45)));
+        auxController.y().whileTrue(intakeTilt.Pulse());
     //MANUAL INTAKE TILT
-        auxController.rightBumper().whileTrue(intakeTilt.manualIntake(0.1));
-        auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-0.1));
+        auxController.rightBumper().whileTrue(intakeTilt.manualIntake(0.3));
+        auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-0.3));
     
 
     //what does any of this do? Who knows. I'm not gonna touch it tho

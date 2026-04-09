@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class intakeTilt extends SubsystemBase {
   public double maxRotateSpeed = 1;
-  public PIDController PID = new PIDController(3,0.1,0);
+  public PIDController PID = new PIDController(6,0,0);
 
   public RotationPositions motorState = RotationPositions.up;
 
@@ -21,7 +21,8 @@ public class intakeTilt extends SubsystemBase {
   public TalonFX tiltMotor = new TalonFX(14);
   public DutyCycleEncoder encoder = new DutyCycleEncoder(9);
 
-  public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.008);
+  public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.01);
+
 
   /** Creates a new intakeTilt. */
   public intakeTilt() {
@@ -33,11 +34,11 @@ public class intakeTilt extends SubsystemBase {
 
   }
   public enum RotationPositions{
-    //default value at the top
     //ADJUSTED DO NOT USE DIRECT ENCODER VALUE
     up(0.59),
-    //put down in grab mode 
-    down(0.945);
+    down(0.95),
+    pulseUp(0.65),
+    pulseDown(0.75);
 
     public final double position;
     RotationPositions(double pos){
@@ -84,16 +85,22 @@ public class intakeTilt extends SubsystemBase {
         tiltMotor.set(-getRotateOutput());
     })).until(positionReached);
   }
-  public Command rotate(RotationPositions newState){
-    return run(()->{
-      motorState = newState;
-      tiltMotor.set(-getRotateOutput());
-      //System.out.println("going " + motorState + "|| Encoder: " + getEncoderValue());
-    }).until(positionReached);
-  }
   public Command manualIntake(double speed){
     return run(()->{
       tiltMotor.set(speed);
+    });
+  }
+
+  public Command Pulse(){
+    return run(()->{
+      if(getEncoderValue() >= 0.75){
+        tiltMotor.set(0.5);
+        System.out.println("pulsing up");
+      }
+      if(getEncoderValue() <= 0.65){
+        tiltMotor.set(-0.5);
+        System.out.println("pulsing down");
+      }
     });
   }
   @Override

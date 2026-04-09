@@ -167,5 +167,20 @@ Shooter Enum by Collin Ramirez
         }
     }
 ==============================================================================
-
-
+Shooter PID by Miles and Jacob
+  public double getShooterSpeed(String part){
+    if(part=="roller1"){
+      return Roller1Motor.get();
+    }
+    else if(part=="roller2"){
+      return Roller2Motor.get();
+    }
+    else if(part=="flywheel"){
+      return FlyWheel2Motor.get();
+    }
+        return 0;
+ / }
+  //set part as "roller1", "roller2", or "flywheel" 
+  public double getShooterOutput(String part, double speed){
+    return softStartPID.calculate(getShooterSpeed(part), speed);
+  }

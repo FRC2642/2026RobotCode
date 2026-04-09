@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 public class IntakeSpin extends SubsystemBase {
   public Boolean isSpinning = false;
-  public TalonFX spinMotor = new TalonFX(15);
+  public TalonFX spinMotor = new TalonFX(16);
   public CurrentLimitsConfigs motorCurrentLimits = new CurrentLimitsConfigs();
 
   public IntakeSpin(){
