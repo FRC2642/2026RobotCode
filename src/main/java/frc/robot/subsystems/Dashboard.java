@@ -26,11 +26,11 @@ public class Dashboard extends SubsystemBase {
   public Command sendAllData(){
     return run(()->{
     //Power Distribution
-      SmartDashboard.putData("PDP", powerDistribution);
+      // SmartDashboard.putData("PDP", powerDistribution);
     //Robot Speed
-      SmartDashboard.putNumber("Swerve Speed", getSwerveSpeed());
+      // SmartDashboard.putNumber("Swerve Speed", getSwerveSpeed());
     //Intake Tilt
-      SmartDashboard.putNumber("Intake Tilt", IntakeTilt.getEncoderValue());
+      // SmartDashboard.putNumber("Intake Tilt", IntakeTilt.getEncoderValue());
     });
   }
   public double getSwerveSpeed(){

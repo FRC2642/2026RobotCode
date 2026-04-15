@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants;
 
 public class intakeTilt extends SubsystemBase {
   public double maxRotateSpeed = 1;
@@ -18,8 +19,8 @@ public class intakeTilt extends SubsystemBase {
   public RotationPositions motorState = RotationPositions.up;
 
   //defining both motors on the thing
-  public TalonFX tiltMotor = new TalonFX(14);
-  public DutyCycleEncoder encoder = new DutyCycleEncoder(9);
+  public TalonFX tiltMotor = new TalonFX(Constants.INTAKE_TILT_MOTOR);
+  public DutyCycleEncoder encoder = new DutyCycleEncoder(Constants.INTAKE_TILT_ENCODER);
 
   public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.01);
 
@@ -28,7 +29,7 @@ public class intakeTilt extends SubsystemBase {
   public intakeTilt() {
     tiltMotor.setNeutralMode(NeutralModeValue.Brake);
     setDefaultCommand(runOnce(()->{
-      System.out.println("tilt encoder: "+ getEncoderValue());
+      // System.out.println("tilt encoder: "+ getEncoderValue());
       tiltMotor.set(0);
     }));
 

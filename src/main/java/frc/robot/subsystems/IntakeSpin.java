@@ -9,49 +9,51 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-public class IntakeSpin extends SubsystemBase {
-  public Boolean isSpinning = false;
-  public TalonFX spinMotor = new TalonFX(16);
-  public CurrentLimitsConfigs motorCurrentLimits = new CurrentLimitsConfigs();
+  public class IntakeSpin extends SubsystemBase {
+    public Boolean isSpinning = false;
+    public TalonFX spinMotor = new TalonFX(Constants.INTAKE_SPIN_MOTOR);
+    public CurrentLimitsConfigs motorCurrentLimits = new CurrentLimitsConfigs();
 
-  public IntakeSpin(){
-    spinMotor.setNeutralMode(NeutralModeValue.Brake);
-    motorCurrentLimits.SupplyCurrentLimitEnable = true; 
-    motorCurrentLimits.SupplyCurrentLimit = 20.0;
-    spinMotor.getConfigurator().apply(motorCurrentLimits);
-    setDefaultCommand(runOnce(()->{
-      spinMotor.set(0);
-    }));
-  }
-  public Command spinToggle(double speed, Boolean newState){
-    return new RunCommand(()->{
-      isSpinning = newState;
-      spinMotor.set((speed));
-    });
-  }
-  public Command spin(Double speed){
-    return run(()->{
-      spinMotor.set(speed);
-    }).andThen(runOnce(()->{
-      spinMotor.set(0);
-    }));
-  }
-
-
-  public Command decideSpin(Boolean isSpinning){
-    if (isSpinning ==true) {
+    public IntakeSpin(){
+      spinMotor.setNeutralMode(NeutralModeValue.Brake);
+      motorCurrentLimits.SupplyCurrentLimitEnable = true; 
+      motorCurrentLimits.SupplyCurrentLimit = Constants.INTAKE_SPIN_CURRENT_LIMIT;
+      spinMotor.getConfigurator().apply(motorCurrentLimits);
+      
+      setDefaultCommand(runOnce(()->{
+        spinMotor.set(0);
+      }));
+    }
+    public Command spinToggle(double speed, Boolean newState){
       return new RunCommand(()->{
-        spinToggle(0,false);
+        isSpinning = newState;
+        spinMotor.set((speed));
       });
-    } else {
-      return new RunCommand(()->{
-        spinToggle(1,true);
-    });
-    } 
-  }
+    }
+    public Command spin(Double speed){
+      return run(()->{
+        spinMotor.set(speed);
+      }).andThen(runOnce(()->{
+        spinMotor.set(0);
+      }));
+    }
 
-  @Override
-  public void periodic() {}
-}
+
+    public Command decideSpin(Boolean isSpinning){
+      if (isSpinning ==true) {
+        return new RunCommand(()->{
+          spinToggle(0,false);
+        });
+      } else {
+        return new RunCommand(()->{
+          spinToggle(1,true);
+      });
+      } 
+    }
+
+    @Override
+    public void periodic() {}
+  }

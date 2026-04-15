@@ -1,56 +1,45 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
-
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 @SuppressWarnings("unused")
 public class shooter extends SubsystemBase {
-  public TalonFX flyWheel1Motor = new TalonFX(17);
-  public TalonFX flyWheel2Motor = new TalonFX(20);
-  //public TalonFX flyWheel3Motor = new TalonFX(22);
-  public TalonFX flyWheel4Motor = new TalonFX(23);
-  public TalonFX roller1Motor = new TalonFX(19);
-  public TalonFX roller2Motor = new TalonFX(18);
+  public TalonFX flyWheel1Motor = new TalonFX(Constants.FLYWHEEL_MOTOR_1);
+  public TalonFX flyWheel2Motor = new TalonFX(Constants.FLYWHEEL_MOTOR_2);
+  public TalonFX flyWheel4Motor = new TalonFX(Constants.FLYWHEEL_MOTOR_4);
+  public TalonFX roller1Motor = new TalonFX(Constants.SHOOTER_ROLLER_MOTOR_1);
+  public TalonFX roller2Motor = new TalonFX(Constants.SHOOTER_ROLLER_MOTOR_2);
   public CurrentLimitsConfigs flyWheelCurrentLimits = new CurrentLimitsConfigs();
   public CurrentLimitsConfigs RollerCurrentLimits = new CurrentLimitsConfigs();
 
-  public PIDController softStartPID = new PIDController(1, 0, 0);
-
-  //the three motors, named based on hight
-  // fist distance is enum name second is verable name
-  public static double position;
-
   /** Creates a new shooter. */
   public shooter() {
+    flyWheelCurrentLimits.SupplyCurrentLimitEnable = true; 
+    flyWheelCurrentLimits.SupplyCurrentLimit = Constants.FLYWHEEL_CURRENT_LIMIT;
+    RollerCurrentLimits.SupplyCurrentLimitEnable = true;
+    RollerCurrentLimits.SupplyCurrentLimit = Constants.SHOOTER_ROLLER_CURRENT_LIMIT;
+
     flyWheel1Motor.setNeutralMode(NeutralModeValue.Coast);
     flyWheel2Motor.setNeutralMode(NeutralModeValue.Coast);
-    //flyWheel3Motor.setNeutralMode(NeutralModeValue.Coast);
     flyWheel4Motor.setNeutralMode(NeutralModeValue.Coast);
+
     roller1Motor.setNeutralMode(NeutralModeValue.Coast);
     roller2Motor.setNeutralMode(NeutralModeValue.Coast);
-    flyWheelCurrentLimits.SupplyCurrentLimitEnable = true; 
-    flyWheelCurrentLimits.SupplyCurrentLimit = 25.0;
-    RollerCurrentLimits.SupplyCurrentLimitEnable = true;
-    RollerCurrentLimits.SupplyCurrentLimit = 25.0;
+
     flyWheel1Motor.getConfigurator().apply(flyWheelCurrentLimits);
     flyWheel2Motor.getConfigurator().apply(flyWheelCurrentLimits);
-    //flyWheel3Motor.getConfigurator().apply(flyWheelCurrentLimits);
     flyWheel4Motor.getConfigurator().apply(flyWheelCurrentLimits);
+
     roller1Motor.getConfigurator().apply(RollerCurrentLimits);
     roller2Motor.getConfigurator().apply(RollerCurrentLimits);
 
-    
     setDefaultCommand(run(() ->{
       setShooterSpeed(0,0,0);
     }));
@@ -59,7 +48,6 @@ public class shooter extends SubsystemBase {
   public void setShooterSpeed(double roller1Speed, double roller2Speed, double flywheelSpeed){
     flyWheel1Motor.set(flywheelSpeed);
     flyWheel2Motor.set(flywheelSpeed);
-    //flyWheel3Motor.set(flywheelSpeed);
     flyWheel4Motor.set(-flywheelSpeed);
     roller1Motor.set(-roller1Speed);
     roller2Motor.set(roller2Speed);
@@ -90,22 +78,21 @@ public class shooter extends SubsystemBase {
     });
   }
 
-  public Command staticShoot(double rollerSpeed, double flyWheelSpeed){
-    return run(()->{
-      setShooterSpeed(flyWheelSpeed, flyWheelSpeed, flyWheelSpeed);
-    });
+  public double calculateFlywheelSpeed(){
+    //calculate flywheel speed based on distance function in vision
+    return 0;
   }
 
-  public Command autoShootCommand(){
+  public Command dynamicShoot(){
     return run(()->{
-      setShooterSpeed(0.7, 0, 0);
-    }).withTimeout(12).andThen(runOnce(()->{
-      setShooterSpeed(0, 0, 0);
-    }));
+      setShooterSpeed(
+        Constants.SHOOTER_ROLLER_1_SPEED, 
+        Constants.SHOOTER_ROLLER_2_SPEED, 
+        calculateFlywheelSpeed());
+    });
   }
 
 @Override
   public void periodic() {
-    // This method will be called once per scheduler run
   }
 }
