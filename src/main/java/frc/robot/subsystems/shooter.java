@@ -69,6 +69,11 @@ public class shooter extends SubsystemBase {
       if(motor == 5){
         roller2Motor.set(speed);
       }
+      if (motor == 6){
+        flyWheel1Motor.set(speed);
+        flyWheel2Motor.set(speed);
+        flyWheel4Motor.set(-speed);
+      }
     });
   }
 

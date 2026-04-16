@@ -135,6 +135,7 @@ public class RobotContainer {
         // buttonBoard.button(10).whileTrue(shooterSub.TestShooterMotors(3, 1));
         // buttonBoard.button(8).whileTrue(shooterSub.TestShooterMotors(4, 1));
         // buttonBoard.button(7).whileTrue(shooterSub.TestShooterMotors(5, 1));
+        controller.y().whileTrue(shooterSub.TestShooterMotors(6, 1));
 }
 
     //INTAKE TOGGLE
