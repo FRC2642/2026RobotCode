@@ -19,6 +19,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPLTVController;
 import com.pathplanner.lib.controllers.PathFollowingController;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -26,6 +27,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -49,18 +51,15 @@ import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Climby;
 import frc.robot.subsystems.intakeTilt;
 import frc.robot.subsystems.shooter;
-import frc.robot.subsystems.shooterTilt;
-import frc.robot.subsystems.shooterTilt.tiltStates;
 import frc.robot.subsystems.intakeTilt.RotationPositions;
 @SuppressWarnings("unused")
 
 public class RobotContainer {
 
     private PathPlannerAuto auto;
-
-    private final CommandJoystick buttonBoard = new CommandJoystick(2);
-    private final CommandXboxController controller = new CommandXboxController(0);
-    private final CommandXboxController auxController = new CommandXboxController(1);
+    private final CommandJoystick buttonBoard = new CommandJoystick(Constants.BUTTON_BOARD_PORT);
+    private final CommandXboxController controller = new CommandXboxController(Constants.MAIN_CONTROLLER_PORT);
+    private final CommandXboxController auxController = new CommandXboxController(Constants.AUX_CONTROLLER_PORT);
 
     private double MaxSpeed = 1 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -78,108 +77,22 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final Intermediate intermediate = new Intermediate();
-    public final Vision vision = new Vision();
+    public final Vision vision = new Vision(drivetrain);
     public final intakeTilt intakeTilt = new intakeTilt();
     public final IntakeSpin intakeSpin = new IntakeSpin();
     public final shooter shooterSub = new shooter();
-    public final shooterTilt shooterTiltSub = new shooterTilt();
+
     public final Climby climby = new Climby();
     public final Dashboard dash = new Dashboard(vision, controller, intakeTilt);
 
     public final SendableChooser<Command> autoChooser;
-    public RobotConfig config;
-    public Supplier<Pose2d> pose = new Supplier<Pose2d>() {
-        @Override
-        public Pose2d get() {
-            return drivetrain.getState().Pose;
-        }   
-    };
-    public Consumer<Pose2d> resetPose = new Consumer<Pose2d>() {
-
-        @Override
-        public void accept(Pose2d t) {
-            drivetrain.runOnce(drivetrain::seedFieldCentric);
-        }
-    };
-    public Supplier<ChassisSpeeds> sppeeds = new Supplier<ChassisSpeeds>() {
-
-        @Override
-        public ChassisSpeeds get() {
-            return drivetrain.getState().Speeds;
-        }
-    };
-    public BiConsumer<ChassisSpeeds, DriveFeedforwards> output = new BiConsumer<ChassisSpeeds,DriveFeedforwards>() {
-
-        @Override
-        public void accept(ChassisSpeeds t, DriveFeedforwards u) {
-            drivetrain.applyRequest(() ->
-                robotDrive.withVelocityX(MaxSpeed / 1) // Drive forward with negative Y (forward)
-                    .withVelocityY(MaxSpeed / 1) // Drive left with negative X (left)
-                    .withRotationalRate(MaxAngularRate / 1));
-        }
-        
-    };
-    public PathFollowingController pathController = new PathFollowingController() {
-
-        @Override
-        public ChassisSpeeds calculateRobotRelativeSpeeds(Pose2d currentPose, PathPlannerTrajectoryState targetState) {
-            return drivetrain.getState().Speeds;    
-        }
-
-        @Override
-        public void reset(Pose2d currentPose, ChassisSpeeds currentSpeeds) {
-            drivetrain.runOnce(drivetrain::seedFieldCentric);    
-        }
-
-        @Override
-        public boolean isHolonomic() {
-            return true;
-        }
-        
-    };
+    
     public RobotContainer() {
-        configureBindings();
-        try{
-            config = RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-        // Handle exception as needed
-            e.printStackTrace();
-        }
-
-        AutoBuilder.configure(
-            pose, // Robot pose supplier
-            resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-            sppeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            output, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-            pathController, // PPLTVController is the built in path following controller for differential drive trains
-            config, // The robot configuration
-            () -> {
-              // Boolean supplier that controls when the path will be mirrored for the red alliance
-              // This will flip the path being followed to the red side of the field.
-              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-              var alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
-              }
-              return false;
-            },
-            drivetrain // Reference to this subsystem to set requirements
-    );
-
-        
-        //make the autos so they show up in the auto selector
         drivetrain.ConfigureAutoBuilder();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
-        autoChooser.setDefaultOption("Taxi Auto", new PathPlannerAuto("Taxi Auto"));
-        
-        
-        //autoChooser.addOption("Shoot", new PathPlannerAuto("Shoot Auto"));
-        //create named commands
-        //these are all the commands to perform certain actions during auto
-        //NamedCommands.registerCommand("shoot", shooterSub.staticShoot(.8, .7));
-        //NamedCommands.registerCommand("intermediate", intermediate.Spin(.3));
+        autoChooser.setDefaultOption("Disruptor Auto 1", new PathPlannerAuto("Disruptor Auto 1"));
+        configureBindings();
     }
     private void configureBindings() {
     //DEFAULT SWERVE
@@ -187,39 +100,64 @@ public class RobotContainer {
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-controller.getRightX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxAngularRate))); // Drive counterclockwise with negative X (left)
-
-        auxController.povUp().whileTrue(drivetrain.applyRequest(() ->
-                drive.withVelocityX(controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed)
-                    .withVelocityY(controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) 
-                    .withRotationalRate(MaxAngularRate)));
+                    .withRotationalRate(-controller.getRightX() * Climby.constrain(controller.getLeftTriggerAxis()+0.7, 0 ,1) * MaxAngularRate))); // Drive counterclockwise with negative X (left)
+                    
     //RESET GYRO
-        controller.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        //if somthing funky is happening its probrobly somthing to do with the gyro vision measuments
+        //or robot pose.
+        //I don't fully know how it works or how it might affect auto.
+        //You might need to do some testing to flip between red and blue
+        controller.povUp().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        //add new vision measument
+        //more comments in the vision subsystem to maybe help
+        controller.y().onTrue(vision.updatePose());
     //AUTO AIM
-        controller.y().whileTrue(
-            drivetrain.applyRequest(()->
-            robotDrive.withVelocityX(vision.getDriveOutput())
-                .withVelocityY(-controller.getLeftX() * MaxSpeed)
-                .withRotationalRate(vision.getRotateOutput())));
+        //This works if the robot knows approx where it is on the field based on the most recent vision measuments
+        //it can align for red side, not sure about blue side, this might be somthing you have to play around with on saturday (4/25)
+        controller.b().whileTrue(
+            AutoBuilder.pathfindToPose(
+                new Pose2d(1.5, 4, Rotation2d.fromDegrees(0)), //Target Pose
+                new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)),
+                0)
+            );
     //SHOOT
-        controller.rightBumper().whileTrue(shooterSub.staticShoot(0.8,0.7)
-                                .alongWith(intermediate.Spin(0.75)));
-        controller.b().toggleOnTrue(shooterSub.runShooterWheels(1));
-    //REVERSE REVERSE
-        auxController.x().whileTrue((shooterSub.staticShoot(-0.5, -0.5)
-                                .alongWith(intermediate.Spin(-0.75))));
-    //INTERMEDIATE
-        auxController.leftTrigger().whileTrue(intermediate.Spin(-0.75));
-        auxController.rightTrigger().whileTrue(intermediate.Spin(0.75));
+        //Shoot once flywheel is up to speed, we can automate it later if we have time, but for now its manual
+        auxController.leftTrigger().whileTrue(shooterSub
+            .runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, 
+                                Constants.SHOOTER_ROLLER_2_SPEED, 
+                                Constants.SHOOTER_FLYWHEEL_SPEED)
+                .alongWith(intermediate.Spin(Constants.INTERMEDIATE_SPEED)));
+    //START UP FLYWHEEL
+        //It takes approx 2 seconds to get to full speed
+        auxController.y().whileTrue(shooterSub
+            .runShooterWheels(0, 0, 
+                            Constants.START_FLYWHEEL_SPEED));
+    //PASS
+        //untested, currently this just sets it to max, takes approx 4 seconds to reach
+        auxController.leftTrigger().whileTrue(shooterSub
+            .runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, 
+                                Constants.SHOOTER_ROLLER_2_SPEED, 
+                                Constants.PASSING_FLYWHEEL_SPEED)
+                .alongWith(intermediate.Spin(Constants.INTERMEDIATE_SPEED)));
     //INTAKE TOGGLE
         auxController.a().onTrue(intakeTilt.toggleRotate());
-        auxController.b().whileTrue(intakeSpin.spin(0.40)
-                                .alongWith(intermediate.Spin(0.75)));
-        auxController.y().whileTrue(intakeSpin.spin(-0.40));
+    //INTAKE PULSE
+        //I want to work on this, perhaps monday(4/25)?
+        //Low priority
+        //auxController.x().whileTrue(intakeTilt.Pulse());
+    //INTAKE SPIN
+        auxController.b().whileTrue(intakeSpin.spin(Constants.INTAKE_SPIN_SPEED));
     //MANUAL INTAKE TILT
-        auxController.rightBumper().whileTrue(intakeTilt.manualIntake(0.1));
-        auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-0.1));
-    
+        //UP
+        auxController.rightBumper().whileTrue(intakeTilt.manualIntake(Constants.MANUAL_TILT_SPEED));
+        //DOWN
+        auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-Constants.MANUAL_TILT_SPEED));
+    //REVERSE REVERSE
+        //This wont work correctly rn, its a quick fix tho. I'll do it on monday.
+        auxController.povUp().whileTrue((shooterSub.runShooterWheels(Constants.REVERSE_SHOOTER_SPEED, 
+                                                                    Constants.REVERSE_SHOOTER_SPEED, 
+                                                                    Constants.REVERSE_SHOOTER_SPEED)
+                            .alongWith(intermediate.Spin(-Constants.INTERMEDIATE_SPEED))));
 
     //what does any of this do? Who knows. I'm not gonna touch it tho
         {final var idle = new SwerveRequest.Idle();
@@ -232,7 +170,8 @@ public class RobotContainer {
         controller.back().and(controller.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         controller.start().and(controller.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         controller.start().and(controller.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-        drivetrain.registerTelemetry(logger::telemeterize);}
+        drivetrain.registerTelemetry(logger::telemeterize);
+        }
     }
     public Command getAutonomousCommand() {
         //return new PathPlannerAuto("Taxi Auto");

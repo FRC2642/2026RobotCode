@@ -8,37 +8,35 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants;
 
 public class intakeTilt extends SubsystemBase {
-  public double maxRotateSpeed = 1;
-  public PIDController PID = new PIDController(3,0.1,0);
-
-  public RotationPositions motorState = RotationPositions.up;
-
   //defining both motors on the thing
-  public TalonFX tiltMotor = new TalonFX(14);
-  public DutyCycleEncoder encoder = new DutyCycleEncoder(9);
+  public TalonFX tiltMotor = new TalonFX(Constants.INTAKE_TILT_MOTOR);
+  public DutyCycleEncoder encoder = new DutyCycleEncoder(Constants.INTAKE_TILT_ENCODER);
 
-  public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.008);
+  public double maxRotateSpeed = 1;
 
-  /** Creates a new intakeTilt. */
+  public PIDController PID = new PIDController(6,0,0);
+  public RotationPositions motorState = RotationPositions.up;
+  public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.01);
+
+  //SUBSYSTEM METHOD
   public intakeTilt() {
     tiltMotor.setNeutralMode(NeutralModeValue.Brake);
     setDefaultCommand(runOnce(()->{
       System.out.println("tilt encoder: "+ getEncoderValue());
       tiltMotor.set(0);
     }));
-
   }
   public enum RotationPositions{
-    //default value at the top
     //ADJUSTED DO NOT USE DIRECT ENCODER VALUE
-    up(0.59),
-    //put down in grab mode 
-    down(0.945);
+    up(0.32), //
+    down(0.65),
+    pulseUp(0.31),
+    pulseDown(0.41);
 
     public final double position;
     RotationPositions(double pos){
@@ -85,18 +83,24 @@ public class intakeTilt extends SubsystemBase {
         tiltMotor.set(-getRotateOutput());
     })).until(positionReached);
   }
-  public Command rotate(RotationPositions newState){
-    return run(()->{
-      motorState = newState;
-      tiltMotor.set(-getRotateOutput());
-      //System.out.println("going " + motorState + "|| Encoder: " + getEncoderValue());
-    }).until(positionReached);
-  }
   public Command manualIntake(double speed){
     return run(()->{
       tiltMotor.set(speed);
     });
   }
+  public Command Pulse(){
+    return run(()->{
+      if(getEncoderValue() >= 0.75){
+        tiltMotor.set(0.5);
+        System.out.println("pulsing up");
+      }
+      if(getEncoderValue() <= 0.65){
+        tiltMotor.set(-0.5);
+        System.out.println("pulsing down");
+      }
+    });
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

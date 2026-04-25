@@ -10,16 +10,17 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class Intermediate extends SubsystemBase {
-  public TalonFX SpinMotor = new TalonFX(16);
+  public TalonFX SpinMotor = new TalonFX(Constants.INTERMEDIATE_MOTOR);
   public CurrentLimitsConfigs motorCurrentLimits = new CurrentLimitsConfigs();
 
   /** Creates a new Intermediate. */
   public Intermediate() {
-    SpinMotor.setNeutralMode(NeutralModeValue.Brake);
+    SpinMotor.setNeutralMode(NeutralModeValue.Coast);
     motorCurrentLimits.SupplyCurrentLimitEnable = true; 
-    motorCurrentLimits.SupplyCurrentLimit = 20.0;
+    motorCurrentLimits.SupplyCurrentLimit = Constants.INTERMEDIATE_CURRENT_LIMIT;
     SpinMotor.getConfigurator().apply(motorCurrentLimits);
     
     setDefaultCommand(runOnce(()->{
@@ -30,14 +31,6 @@ public class Intermediate extends SubsystemBase {
     return run(()->{
       SpinMotor.set(speed);
     });
-  }
-
-  public Command autoSpinCommand(){
-    return run(()->{
-      SpinMotor.set(0.75);
-    }).withTimeout(12).andThen(runOnce(()->{
-      SpinMotor.set(0);
-    }));
   }
   @Override
   public void periodic() {
