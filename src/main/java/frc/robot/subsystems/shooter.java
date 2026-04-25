@@ -1,5 +1,9 @@
 package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.CoastOut;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.PIDController;
@@ -18,6 +22,8 @@ public class shooter extends SubsystemBase {
   public TalonFX roller2Motor = new TalonFX(Constants.SHOOTER_ROLLER_MOTOR_2);
   public CurrentLimitsConfigs flyWheelCurrentLimits = new CurrentLimitsConfigs();
   public CurrentLimitsConfigs RollerCurrentLimits = new CurrentLimitsConfigs();
+  public TalonFXConfiguration flywheelConfigs = new TalonFXConfiguration();
+  final MotionMagicVelocityVoltage m_request = new MotionMagicVelocityVoltage(0);
 
   /** Creates a new shooter. */
   public shooter() {
@@ -25,6 +31,15 @@ public class shooter extends SubsystemBase {
     flyWheelCurrentLimits.SupplyCurrentLimit = Constants.FLYWHEEL_CURRENT_LIMIT;
     RollerCurrentLimits.SupplyCurrentLimitEnable = true;
     RollerCurrentLimits.SupplyCurrentLimit = Constants.SHOOTER_ROLLER_CURRENT_LIMIT;
+
+    flywheelConfigs.Slot0.kS = 0.25;
+    flywheelConfigs.Slot0.kV = 0.12;
+    flywheelConfigs.Slot0.kA = 0.01;
+    flywheelConfigs.Slot0.kP = 0.07;
+    flywheelConfigs.Slot0.kI = 0;
+    flywheelConfigs.Slot0.kD = 0;
+    flywheelConfigs.MotionMagic.MotionMagicAcceleration = 45;
+
 
     flyWheel1Motor.setNeutralMode(NeutralModeValue.Coast);
     flyWheel2Motor.setNeutralMode(NeutralModeValue.Coast);
@@ -37,6 +52,10 @@ public class shooter extends SubsystemBase {
     flyWheel2Motor.getConfigurator().apply(flyWheelCurrentLimits);
     flyWheel4Motor.getConfigurator().apply(flyWheelCurrentLimits);
 
+    flyWheel1Motor.getConfigurator().apply(flywheelConfigs);
+    flyWheel2Motor.getConfigurator().apply(flywheelConfigs);
+    flyWheel4Motor.getConfigurator().apply(flywheelConfigs);
+
     roller1Motor.getConfigurator().apply(RollerCurrentLimits);
     roller2Motor.getConfigurator().apply(RollerCurrentLimits);
 
@@ -45,12 +64,37 @@ public class shooter extends SubsystemBase {
     }));
   }
 
+  public double getFlywheelVelocity(){
+    double motor1 = flyWheel1Motor.getVelocity().getValueAsDouble();
+    double motor2 = flyWheel2Motor.getVelocity().getValueAsDouble();
+    double motor4 = flyWheel4Motor.getVelocity().getValueAsDouble();
+    // flyWheel1Motor.setControl(new VelocityDutyCycle(30));
+    // flyWheel2Motor.setControl(new VelocityDutyCycle(30));
+    // flyWheel4Motor.setControl(new VelocityDutyCycle(30));
+
+    return (motor1 + motor2 + motor4) / 3;
+  }
+
   public void setShooterSpeed(double roller1Speed, double roller2Speed, double flywheelSpeed){
-    flyWheel1Motor.set(flywheelSpeed);
-    flyWheel2Motor.set(flywheelSpeed);
-    flyWheel4Motor.set(-flywheelSpeed);
+    // flyWheel1Motor.set(flywheelSpeed);
+    // flyWheel2Motor.set(flywheelSpeed);
+    // flyWheel4Motor.set(-flywheelSpeed);
     roller1Motor.set(-roller1Speed);
     roller2Motor.set(roller2Speed);
+    if(flywheelSpeed == 0){
+      flyWheel1Motor.setControl(new CoastOut());
+      flyWheel2Motor.setControl(new CoastOut());
+      flyWheel4Motor.setControl(new CoastOut());
+    }
+    else{
+      // flyWheel1Motor.setControl(new VelocityDutyCycle(flywheelSpeed));
+      // flyWheel2Motor.setControl(new VelocityDutyCycle(flywheelSpeed));
+      // flyWheel4Motor.setControl(new VelocityDutyCycle(-flywheelSpeed));
+
+      flyWheel1Motor.setControl(m_request.withVelocity(50));
+      flyWheel2Motor.setControl(m_request.withVelocity(50));
+      flyWheel4Motor.setControl(m_request.withVelocity(-50));
+    }
   }
   public Command TestShooterMotors(double motor, double speed){
     return run(()->{
@@ -80,6 +124,7 @@ public class shooter extends SubsystemBase {
   public Command runShooterWheels(double roller1Speed, double roller2Speed, double flyWheelSpeed){
     return run(()->{
       setShooterSpeed(roller1Speed, roller2Speed, flyWheelSpeed);
+      
     });
   }
 

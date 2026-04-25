@@ -19,6 +19,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPLTVController;
 import com.pathplanner.lib.controllers.PathFollowingController;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -26,6 +27,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -71,11 +73,11 @@ public class RobotContainer {
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate *0.1)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    // private final Telemetry logger = new Telemetry(MaxSpeed);
+    private final Telemetry logger = new Telemetry(MaxSpeed);
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final Intermediate intermediate = new Intermediate();
-    public final Vision vision = new Vision();
+    public final Vision vision = new Vision(drivetrain);
     public final intakeTilt intakeTilt = new intakeTilt();
     public final IntakeSpin intakeSpin = new IntakeSpin();
     public final shooter shooterSub = new shooter();
@@ -86,11 +88,11 @@ public class RobotContainer {
     public final SendableChooser<Command> autoChooser;
     
     public RobotContainer() {
-        configureBindings();
         drivetrain.ConfigureAutoBuilder();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
         autoChooser.setDefaultOption("Disruptor Auto 1", new PathPlannerAuto("Disruptor Auto 1"));
+        configureBindings();
     }
     private void configureBindings() {
     //DEFAULT SWERVE
@@ -106,12 +108,19 @@ public class RobotContainer {
                     .withRotationalRate(MaxAngularRate)));
     //RESET GYRO
         controller.povUp().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        controller.y().onTrue(vision.updatePose());
     //AUTO AIM
         controller.b().whileTrue(
-            drivetrain.applyRequest(()->
-            robotDrive.withVelocityX(vision.getDriveOutput())
-                .withVelocityY(-controller.getLeftX() * MaxSpeed)
-                .withRotationalRate(vision.getRotateOutput())));
+            AutoBuilder.pathfindToPose(
+                new Pose2d(1.5, 4, Rotation2d.fromDegrees(0)), //Target Pose
+                new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)),
+                0)
+            );
+        // controller.b().whileTrue(
+        //     drivetrain.applyRequest(()->
+        //     robotDrive.withVelocityX(-vision.getDriveOutput())
+        //         .withVelocityY(vision.getRotateOutput())
+        //         .withRotationalRate(-vision.getRotateOutput())));
     //SHOOT
         auxController.leftTrigger().whileTrue(shooterSub
             .runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, 
@@ -121,7 +130,7 @@ public class RobotContainer {
     //START UP FLYWHEEL
         auxController.y().whileTrue(shooterSub
             .runShooterWheels(0, 0, 
-                            Constants.SHOOTER_FLYWHEEL_SPEED));
+                            Constants.START_FLYWHEEL_SPEED));
     //PASS
         auxController.leftTrigger().whileTrue(shooterSub
             .runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, 
@@ -135,8 +144,13 @@ public class RobotContainer {
         // buttonBoard.button(10).whileTrue(shooterSub.TestShooterMotors(3, 1));
         // buttonBoard.button(8).whileTrue(shooterSub.TestShooterMotors(4, 1));
         // buttonBoard.button(7).whileTrue(shooterSub.TestShooterMotors(5, 1));
-        controller.y().whileTrue(shooterSub.TestShooterMotors(6, 1));
+        //controller.y().whileTrue(shooterSub.TestShooterMotors(6, 1));
 }
+
+    //TESTING
+        controller.x().whileTrue(intermediate.Spin(0.3));
+        controller.povRight().whileTrue(shooterSub.runShooterWheels(0.6,0,0));
+        controller.povLeft().whileTrue(shooterSub.runShooterWheels(0,0.6,0));
 
     //INTAKE TOGGLE
         auxController.a().onTrue(intakeTilt.toggleRotate());
@@ -166,7 +180,7 @@ public class RobotContainer {
         controller.back().and(controller.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         controller.start().and(controller.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         controller.start().and(controller.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-        // drivetrain.registerTelemetry(logger::telemeterize);
+        drivetrain.registerTelemetry(logger::telemeterize);
         }
     }
     public Command getAutonomousCommand() {

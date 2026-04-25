@@ -4,53 +4,44 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.Utils;
+
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.RawFiducial;
 
 public class Vision extends SubsystemBase {
-public double[] measuments = {0,0,0,0,0,0};
-public PIDController rotPID = new PIDController(0.2, 0, 0);
-public PIDController drivePID = new PIDController(4, 0, 0);
+  public double[] measuments = {0,0,0,0,0,0};
+  public PIDController rotPID = new PIDController(0.2, 0, 0);
+  public PIDController drivePID = new PIDController(4, 0, 0);
 
-public PIDController climbXPID = new PIDController(2, 0, 0);
-public PIDController climbYPID = new PIDController(2, 0, 0);
-public PIDController climbRotPID = new PIDController(0.02, 0, 0);
-public int tagID;
-public double maxSpeed = 1;
-public RawFiducial[] fiducials;
-  public Vision() {
+  public PIDController climbXPID = new PIDController(2, 0, 0);
+  public PIDController climbYPID = new PIDController(2, 0, 0);
+  public PIDController climbRotPID = new PIDController(0.02, 0, 0);
+  public int tagID;
+  public double maxSpeed = 1;
+  public RawFiducial[] fiducials;
+  public CommandSwerveDrivetrain drivetrain;
+
+  public Vision(CommandSwerveDrivetrain drivetrain) {
+    this.drivetrain = drivetrain;
     setDefaultCommand(run(()->{
-      updateMeasurments();
-      // System.out.println("tag in sight? "+LimelightHelpers.getTV("") );
-      // System.out.println("distance: "+getDistance());
-      // System.out.println("measurments x: "+measuments[2]);
-      // System.out.println("measurments y: "+measuments[0]);
-      // System.out.println("measurments rot: "+measuments[4]);
+    updateMeasurments();
     }));
   }
 
-  public Command print(){
-    return run(()->{
-      //System.out.println("x: " + LimelightHelpers.getTX(""));
-      //System.out.println("y: " + LimelightHelpers.getTY(""));
-      // for (double data: LimelightHelpers.getBotPose_TargetSpace("")){
-      //   System.out.println(data);
-      // }
-      if (LimelightHelpers.getTV("")){
-        updateMeasurments();
-        // System.out.println("x: " + measuments[2]);
-        // System.out.println("y: " + measuments[0]);
-        // System.out.println("rot: " + measuments[4]);
-        System.out.println("distance: " + getDistance());
-      }
-
+  public Command updatePose(){
+    return runOnce(()->{
+      drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(""));
     });
   }
 // FOR CLIMB ALLIGNMENT (NATE)
-    public double getOutputX(){
+  public double getOutputX(){
     updateMeasurments();
     double output = climbXPID.calculate(measuments[2], -1.338);
     if (output > maxSpeed){
@@ -101,16 +92,25 @@ public RawFiducial[] fiducials;
     return -output;
   }
   public double getDriveOutput(){
-    double output = drivePID.calculate(getDistance(), 1.4);
-    if (output < -1.27){
+    double output = drivePID.calculate(getDistance(), 1);
+    if (output < -1){
       output = -1;
     }
-    if (output > 1.27){
+    if (output > 1){
       output = 1;
     }
     return output;
   }
-
+  public double getHorizontalDriveOutput(){
+    double output = rotPID.calculate(LimelightHelpers.getTX(""), 0);
+    if (output < -1){
+      output = -1;
+    }
+    if (output > 1){
+      output = 1;
+    }
+    return output;
+  }
   public double getDistance(){
     double distance = 0;
     if (LimelightHelpers.getTV("")){
@@ -138,7 +138,9 @@ public RawFiducial[] fiducials;
       measuments = LimelightHelpers.getBotPose_TargetSpace("");
     }
     }
-  @Override
+  
+  
+    @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }

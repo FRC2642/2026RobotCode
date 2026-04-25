@@ -26,14 +26,14 @@ public class Constants {
         public static double INTAKE_SPIN_CURRENT_LIMIT = 20;
 
     //SPEEDS
-        public static double INTAKE_SPIN_SPEED = 0.40;
+        public static double INTAKE_SPIN_SPEED = 0.70;
         public static double MANUAL_TILT_SPEED = 0.3;
-        public static double REVERSE_SHOOTER_SPEED = -0.5;
-        public static double INTERMEDIATE_SPEED = 0.4;
+        public static double REVERSE_SHOOTER_SPEED = -0.3;
+        public static double INTERMEDIATE_SPEED = 0.3;
+
         public static double SHOOTER_ROLLER_1_SPEED = 0.4;
-        public static double SHOOTER_ROLLER_2_SPEED = 1;
-        public static double SHOOTER_FLYWHEEL_SPEED = 0.8;
+        public static double SHOOTER_ROLLER_2_SPEED = 0.6;
+        public static double SHOOTER_FLYWHEEL_SPEED = 30;
+        public static double START_FLYWHEEL_SPEED = 30;
         public static double PASSING_FLYWHEEL_SPEED = 1;
-
-
 }

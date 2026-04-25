@@ -13,33 +13,30 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 
 public class intakeTilt extends SubsystemBase {
-  public double maxRotateSpeed = 1;
-  public PIDController PID = new PIDController(6,0,0);
-
-  public RotationPositions motorState = RotationPositions.up;
-
   //defining both motors on the thing
   public TalonFX tiltMotor = new TalonFX(Constants.INTAKE_TILT_MOTOR);
   public DutyCycleEncoder encoder = new DutyCycleEncoder(Constants.INTAKE_TILT_ENCODER);
 
+  public double maxRotateSpeed = 1;
+
+  public PIDController PID = new PIDController(6,0,0);
+  public RotationPositions motorState = RotationPositions.up;
   public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.01);
 
-
-  /** Creates a new intakeTilt. */
+  //SUBSYSTEM METHOD
   public intakeTilt() {
     tiltMotor.setNeutralMode(NeutralModeValue.Brake);
     setDefaultCommand(runOnce(()->{
-      // System.out.println("tilt encoder: "+ getEncoderValue());
+      System.out.println("tilt encoder: "+ getEncoderValue());
       tiltMotor.set(0);
     }));
-
   }
   public enum RotationPositions{
     //ADJUSTED DO NOT USE DIRECT ENCODER VALUE
-    up(0.59),
-    down(0.95),
-    pulseUp(0.65),
-    pulseDown(0.75);
+    up(0.32), //
+    down(0.65),
+    pulseUp(0.31),
+    pulseDown(0.41);
 
     public final double position;
     RotationPositions(double pos){
@@ -91,7 +88,6 @@ public class intakeTilt extends SubsystemBase {
       tiltMotor.set(speed);
     });
   }
-
   public Command Pulse(){
     return run(()->{
       if(getEncoderValue() >= 0.75){
@@ -104,6 +100,7 @@ public class intakeTilt extends SubsystemBase {
       }
     });
   }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
