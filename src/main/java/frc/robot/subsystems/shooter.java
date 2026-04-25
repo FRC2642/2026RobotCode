@@ -110,6 +110,13 @@ public class shooter extends SubsystemBase {
     });
   }
 
+  public Command revFlyWheel(double flyWheelSpeed) {
+    return run(()->{
+      setShooterSpeed(0, 0, flyWheelSpeed);
+    })
+    .withTimeout(4);
+  }
+
   public double calculateFlywheelSpeed(){
     //calculate flywheel speed based on distance function in vision
     return 0;

@@ -27,7 +27,7 @@ public class intakeTilt extends SubsystemBase {
   public intakeTilt() {
     tiltMotor.setNeutralMode(NeutralModeValue.Brake);
     setDefaultCommand(runOnce(()->{
-      System.out.println("tilt encoder: "+ getEncoderValue());
+      //System.out.println("tilt encoder: "+ getEncoderValue());
       tiltMotor.set(0);
     }));
   }

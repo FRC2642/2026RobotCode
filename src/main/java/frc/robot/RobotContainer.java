@@ -13,6 +13,7 @@ import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.fasterxml.jackson.databind.util.Named;
 import com.pathplanner.lib.auto.AutoBuilder;   
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -80,7 +81,8 @@ public class RobotContainer {
     public final Vision vision = new Vision(drivetrain);
     public final intakeTilt intakeTilt = new intakeTilt();
     public final IntakeSpin intakeSpin = new IntakeSpin();
-    public final shooter shooterSub = new shooter();
+    public final shooter 
+    shooterSub = new shooter();
 
     public final Climby climby = new Climby();
     public final Dashboard dash = new Dashboard(vision, controller, intakeTilt);
@@ -88,7 +90,14 @@ public class RobotContainer {
     public final SendableChooser<Command> autoChooser;
     
     public RobotContainer() {
+
         drivetrain.ConfigureAutoBuilder();
+
+        NamedCommands.registerCommand("shoot", shooterSub.runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, Constants.SHOOTER_ROLLER_2_SPEED, Constants.SHOOTER_FLYWHEEL_SPEED));
+        NamedCommands.registerCommand("rev", shooterSub.revFlyWheel(Constants.SHOOTER_FLYWHEEL_SPEED));
+        NamedCommands.registerCommand("intermediate", intermediate.Spin(Constants.INTERMEDIATE_SPEED));
+        //NamedCommands.registerCommand("intake", intakeTilt.);
+
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
         autoChooser.setDefaultOption("Disruptor Auto 1", new PathPlannerAuto("Disruptor Auto 1"));

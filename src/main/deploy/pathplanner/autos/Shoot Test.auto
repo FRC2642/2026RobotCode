@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Taxi Path"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Hub Move"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "rev"
+                }
+              }
+            ]
           }
         },
         {
