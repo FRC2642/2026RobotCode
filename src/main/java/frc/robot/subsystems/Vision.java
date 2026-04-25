@@ -37,6 +37,10 @@ public class Vision extends SubsystemBase {
 
   public Command updatePose(){
     return runOnce(()->{
+      //regardless of wether the robot is on red or blue side, the resetPose() function should use getBotPose2d_wpiBlue()
+      //not the red one.
+      //Changing this will not fix any inversion/flipping issues
+      //technically it might fix it but it will mess up other stuff so try to find a different solution
       drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(""));
     });
   }

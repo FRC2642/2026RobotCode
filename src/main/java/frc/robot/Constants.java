@@ -33,7 +33,7 @@ public class Constants {
 
         public static double SHOOTER_ROLLER_1_SPEED = 0.4;
         public static double SHOOTER_ROLLER_2_SPEED = 0.6;
-        public static double SHOOTER_FLYWHEEL_SPEED = 30;
-        public static double START_FLYWHEEL_SPEED = 30;
-        public static double PASSING_FLYWHEEL_SPEED = 1;
+        public static double SHOOTER_FLYWHEEL_SPEED = 50;
+        public static double START_FLYWHEEL_SPEED = 50;
+        public static double PASSING_FLYWHEEL_SPEED = 100;
 }

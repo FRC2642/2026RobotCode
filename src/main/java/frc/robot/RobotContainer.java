@@ -101,60 +101,49 @@ public class RobotContainer {
                 drive.withVelocityX(controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-controller.getRightX() * Climby.constrain(controller.getLeftTriggerAxis()+0.7, 0 ,1) * MaxAngularRate))); // Drive counterclockwise with negative X (left)
-    //SPIN
-        controller.a().whileTrue(drivetrain.applyRequest(() ->
-                drive.withVelocityX(controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed)
-                    .withVelocityY(controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) 
-                    .withRotationalRate(MaxAngularRate)));
+                    
     //RESET GYRO
+        //if somthing funky is happening its probrobly somthing to do with the gyro vision measuments
+        //or robot pose.
+        //I don't fully know how it works or how it might affect auto.
+        //You might need to do some testing to flip between red and blue
         controller.povUp().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        //add new vision measument
+        //more comments in the vision subsystem to maybe help
         controller.y().onTrue(vision.updatePose());
     //AUTO AIM
+        //This works if the robot knows approx where it is on the field based on the most recent vision measuments
+        //it can align for red side, not sure about blue side, this might be somthing you have to play around with on saturday (4/25)
         controller.b().whileTrue(
             AutoBuilder.pathfindToPose(
                 new Pose2d(1.5, 4, Rotation2d.fromDegrees(0)), //Target Pose
                 new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)),
                 0)
             );
-        // controller.b().whileTrue(
-        //     drivetrain.applyRequest(()->
-        //     robotDrive.withVelocityX(-vision.getDriveOutput())
-        //         .withVelocityY(vision.getRotateOutput())
-        //         .withRotationalRate(-vision.getRotateOutput())));
     //SHOOT
+        //Shoot once flywheel is up to speed, we can automate it later if we have time, but for now its manual
         auxController.leftTrigger().whileTrue(shooterSub
             .runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, 
                                 Constants.SHOOTER_ROLLER_2_SPEED, 
                                 Constants.SHOOTER_FLYWHEEL_SPEED)
                 .alongWith(intermediate.Spin(Constants.INTERMEDIATE_SPEED)));
     //START UP FLYWHEEL
+        //It takes approx 2 seconds to get to full speed
         auxController.y().whileTrue(shooterSub
             .runShooterWheels(0, 0, 
                             Constants.START_FLYWHEEL_SPEED));
     //PASS
+        //untested, currently this just sets it to max, takes approx 4 seconds to reach
         auxController.leftTrigger().whileTrue(shooterSub
             .runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, 
                                 Constants.SHOOTER_ROLLER_2_SPEED, 
                                 Constants.PASSING_FLYWHEEL_SPEED)
                 .alongWith(intermediate.Spin(Constants.INTERMEDIATE_SPEED)));
-
-    {//Shooter testing (12,11,10,8,7,1)
-        // buttonBoard.button(12).whileTrue(shooterSub.TestShooterMotors(1, 1));
-        // buttonBoard.button(11).whileTrue(shooterSub.TestShooterMotors(2, 1));
-        // buttonBoard.button(10).whileTrue(shooterSub.TestShooterMotors(3, 1));
-        // buttonBoard.button(8).whileTrue(shooterSub.TestShooterMotors(4, 1));
-        // buttonBoard.button(7).whileTrue(shooterSub.TestShooterMotors(5, 1));
-        //controller.y().whileTrue(shooterSub.TestShooterMotors(6, 1));
-}
-
-    //TESTING
-        controller.x().whileTrue(intermediate.Spin(0.3));
-        controller.povRight().whileTrue(shooterSub.runShooterWheels(0.6,0,0));
-        controller.povLeft().whileTrue(shooterSub.runShooterWheels(0,0.6,0));
-
     //INTAKE TOGGLE
         auxController.a().onTrue(intakeTilt.toggleRotate());
     //INTAKE PULSE
+        //I want to work on this, perhaps monday(4/25)?
+        //Low priority
         //auxController.x().whileTrue(intakeTilt.Pulse());
     //INTAKE SPIN
         auxController.b().whileTrue(intakeSpin.spin(Constants.INTAKE_SPIN_SPEED));
@@ -164,6 +153,7 @@ public class RobotContainer {
         //DOWN
         auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-Constants.MANUAL_TILT_SPEED));
     //REVERSE REVERSE
+        //This wont work correctly rn, its a quick fix tho. I'll do it on monday.
         auxController.povUp().whileTrue((shooterSub.runShooterWheels(Constants.REVERSE_SHOOTER_SPEED, 
                                                                     Constants.REVERSE_SHOOTER_SPEED, 
                                                                     Constants.REVERSE_SHOOTER_SPEED)

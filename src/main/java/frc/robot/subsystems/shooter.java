@@ -64,21 +64,7 @@ public class shooter extends SubsystemBase {
     }));
   }
 
-  public double getFlywheelVelocity(){
-    double motor1 = flyWheel1Motor.getVelocity().getValueAsDouble();
-    double motor2 = flyWheel2Motor.getVelocity().getValueAsDouble();
-    double motor4 = flyWheel4Motor.getVelocity().getValueAsDouble();
-    // flyWheel1Motor.setControl(new VelocityDutyCycle(30));
-    // flyWheel2Motor.setControl(new VelocityDutyCycle(30));
-    // flyWheel4Motor.setControl(new VelocityDutyCycle(30));
-
-    return (motor1 + motor2 + motor4) / 3;
-  }
-
   public void setShooterSpeed(double roller1Speed, double roller2Speed, double flywheelSpeed){
-    // flyWheel1Motor.set(flywheelSpeed);
-    // flyWheel2Motor.set(flywheelSpeed);
-    // flyWheel4Motor.set(-flywheelSpeed);
     roller1Motor.set(-roller1Speed);
     roller2Motor.set(roller2Speed);
     if(flywheelSpeed == 0){
@@ -87,13 +73,9 @@ public class shooter extends SubsystemBase {
       flyWheel4Motor.setControl(new CoastOut());
     }
     else{
-      // flyWheel1Motor.setControl(new VelocityDutyCycle(flywheelSpeed));
-      // flyWheel2Motor.setControl(new VelocityDutyCycle(flywheelSpeed));
-      // flyWheel4Motor.setControl(new VelocityDutyCycle(-flywheelSpeed));
-
-      flyWheel1Motor.setControl(m_request.withVelocity(50));
-      flyWheel2Motor.setControl(m_request.withVelocity(50));
-      flyWheel4Motor.setControl(m_request.withVelocity(-50));
+      flyWheel1Motor.setControl(m_request.withVelocity(flywheelSpeed));
+      flyWheel2Motor.setControl(m_request.withVelocity(flywheelSpeed));
+      flyWheel4Motor.setControl(m_request.withVelocity(-flywheelSpeed));
     }
   }
   public Command TestShooterMotors(double motor, double speed){
