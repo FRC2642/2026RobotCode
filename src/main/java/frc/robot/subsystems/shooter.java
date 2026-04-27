@@ -114,7 +114,7 @@ public class shooter extends SubsystemBase {
     return run(()->{
       setShooterSpeed(0, 0, flyWheelSpeed);
     })
-    .withTimeout(4);
+    .withTimeout(2.5);
   }
 
   public double calculateFlywheelSpeed(){

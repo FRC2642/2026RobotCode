@@ -92,10 +92,11 @@ public class RobotContainer {
     public RobotContainer() {
 
         drivetrain.ConfigureAutoBuilder();
-        NamedCommands.registerCommand("shoot", shooterSub.runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, Constants.SHOOTER_ROLLER_2_SPEED, Constants.SHOOTER_FLYWHEEL_SPEED));
-        NamedCommands.registerCommand("rev", shooterSub.revFlyWheel(Constants.SHOOTER_FLYWHEEL_SPEED));
+        NamedCommands.registerCommand("shoot", shooterSub.runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, Constants.SHOOTER_ROLLER_2_SPEED, Constants.SHOOTER_FLYWHEEL_SPEED * 1));
+        NamedCommands.registerCommand("rev", shooterSub.revFlyWheel(Constants.SHOOTER_FLYWHEEL_SPEED * 1));
         NamedCommands.registerCommand("intermediate", intermediate.Spin(Constants.INTERMEDIATE_SPEED));
         NamedCommands.registerCommand("intake", intakeTilt.toggleRotate());
+        NamedCommands.registerCommand("balls in", intakeTilt.autoTimeout());
         NamedCommands.registerCommand("Align", AutoBuilder.pathfindToPose(
                 new Pose2d(15.11, 4, Rotation2d.fromDegrees(180)), //Target Pose
                 new PathConstraints(2.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)),
@@ -146,13 +147,15 @@ public class RobotContainer {
                             Constants.START_FLYWHEEL_SPEED));
     //PASS
         //untested, currently this just sets it to max, takes approx 4 seconds to reach
-        auxController.leftTrigger().whileTrue(shooterSub
+        auxController.rightTrigger().whileTrue(shooterSub
             .runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, 
                                 Constants.SHOOTER_ROLLER_2_SPEED, 
                                 Constants.PASSING_FLYWHEEL_SPEED)
                 .alongWith(intermediate.Spin(Constants.INTERMEDIATE_SPEED)));
     //INTAKE TOGGLE
         auxController.a().onTrue(intakeTilt.toggleRotate());
+    //INTAKE UP TO PUSH BALLS IN
+        controller.x().onTrue(intakeTilt.autoTimeout());
     //INTAKE PULSE
         //I want to work on this, perhaps monday(4/25)?
         //Low priority

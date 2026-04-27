@@ -21,6 +21,7 @@ public class intakeTilt extends SubsystemBase {
 
   public PIDController PID = new PIDController(6,0,0);
   public RotationPositions motorState = RotationPositions.up;
+  public RotationPositions autoMotorState = RotationPositions.slightlyUp;
   public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.01);
 
   //SUBSYSTEM METHOD
@@ -36,7 +37,8 @@ public class intakeTilt extends SubsystemBase {
     up(0.32), //
     down(0.65),
     pulseUp(0.31),
-    pulseDown(0.41);
+    pulseDown(0.41),
+    slightlyUp(0.55);
 
     public final double position;
     RotationPositions(double pos){
@@ -83,10 +85,25 @@ public class intakeTilt extends SubsystemBase {
         tiltMotor.set(-getRotateOutput());
     })).until(positionReached);
   }
+  // public Command ballsIn() {
+  //   return run(()->{
+  //     autoMotorState = RotationPositions.slightlyUp;
+  //     System.out.println("rotating");
+  //       tiltMotor.set(-getRotateOutput());
+  //   }).until(positionReached).andThen(runOnce(()->{
+  //     motorState = RotationPositions.down;
+  //   }));
+  // }
   public Command manualIntake(double speed){
     return run(()->{
       tiltMotor.set(speed);
     });
+  }
+  public Command autoTimeout() {
+    return run(()->{
+      tiltMotor.set(.3);
+    })
+    .withTimeout(1.5);
   }
   public Command Pulse(){
     return run(()->{

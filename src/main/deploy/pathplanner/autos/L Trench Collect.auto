@@ -21,6 +21,18 @@
           "data": {
             "name": "Align"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "rev"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
         }
       ]
     }

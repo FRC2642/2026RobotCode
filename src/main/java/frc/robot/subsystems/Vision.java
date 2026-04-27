@@ -146,9 +146,9 @@ public class Vision extends SubsystemBase {
   
     @Override
   public void periodic() {
-    if(LimelightHelpers.getTV("")){
-      drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(""));
-      System.out.println("updating pose");
-    }
+    // if(LimelightHelpers.getTV("")){
+    //   drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(""));
+    //   System.out.println("updating pose");
+    //}
   }
 }
