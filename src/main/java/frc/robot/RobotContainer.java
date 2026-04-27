@@ -92,12 +92,15 @@ public class RobotContainer {
     public RobotContainer() {
 
         drivetrain.ConfigureAutoBuilder();
-
         NamedCommands.registerCommand("shoot", shooterSub.runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, Constants.SHOOTER_ROLLER_2_SPEED, Constants.SHOOTER_FLYWHEEL_SPEED));
         NamedCommands.registerCommand("rev", shooterSub.revFlyWheel(Constants.SHOOTER_FLYWHEEL_SPEED));
         NamedCommands.registerCommand("intermediate", intermediate.Spin(Constants.INTERMEDIATE_SPEED));
-        //NamedCommands.registerCommand("intake", intakeTilt.);
-
+        NamedCommands.registerCommand("intake", intakeTilt.toggleRotate());
+        NamedCommands.registerCommand("Align", AutoBuilder.pathfindToPose(
+                new Pose2d(15.11, 4, Rotation2d.fromDegrees(180)), //Target Pose
+                new PathConstraints(2.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)),
+                0));
+        NamedCommands.registerCommand("intake spin", intakeSpin.spin(Constants.INTAKE_SPIN_SPEED));
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
         autoChooser.setDefaultOption("Disruptor Auto 1", new PathPlannerAuto("Disruptor Auto 1"));
@@ -107,10 +110,10 @@ public class RobotContainer {
     //DEFAULT SWERVE
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive left with negative X (left)
+                drive.withVelocityX(-controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-controller.getRightX() * Climby.constrain(controller.getLeftTriggerAxis()+0.7, 0 ,1) * MaxAngularRate))); // Drive counterclockwise with negative X (left)
-                    
+
     //RESET GYRO
         //if somthing funky is happening its probrobly somthing to do with the gyro vision measuments
         //or robot pose.
@@ -125,8 +128,8 @@ public class RobotContainer {
         //it can align for red side, not sure about blue side, this might be somthing you have to play around with on saturday (4/25)
         controller.b().whileTrue(
             AutoBuilder.pathfindToPose(
-                new Pose2d(1.5, 4, Rotation2d.fromDegrees(0)), //Target Pose
-                new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)),
+                new Pose2d(15.11, 4, Rotation2d.fromDegrees(180)), //Target Pose
+                new PathConstraints(2.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)),
                 0)
             );
     //SHOOT

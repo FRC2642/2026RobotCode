@@ -146,6 +146,9 @@ public class Vision extends SubsystemBase {
   
     @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    if(LimelightHelpers.getTV("")){
+      drivetrain.resetPose(LimelightHelpers.getBotPose2d_wpiBlue(""));
+      System.out.println("updating pose");
+    }
   }
 }

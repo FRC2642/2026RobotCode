@@ -7,19 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L Trench Move"
+            "pathName": "No Move"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Align"
+            "name": "intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Align"
+            "name": "intake"
           }
         }
       ]
