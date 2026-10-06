@@ -14,7 +14,7 @@ public class Constants {
         public static int SHOOTER_ROLLER_MOTOR_1 = 19;
         public static int SHOOTER_ROLLER_MOTOR_2 = 18;
 
-        public static int INTERMEDIATE_MOTOR = 15;
+        public static int INTERMEDIATE_MOTOR = 24;
 
         public static int INTAKE_TILT_MOTOR = 14;
         public static int INTAKE_TILT_ENCODER = 9;
