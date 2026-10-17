@@ -140,6 +140,10 @@ public class RobotContainer {
                                 Constants.SHOOTER_ROLLER_2_SPEED, 
                                 Constants.SHOOTER_FLYWHEEL_SPEED)
                 .alongWith(intermediate.Spin(Constants.INTERMEDIATE_SPEED)));
+    //SUPER EVIL INTERMEDIATE BUTTON
+        //spins just the intermediate, use for testing, maybe delete later?
+        auxController.x().whileTrue(
+            intermediate.Spin(Constants.INTERMEDIATE_SPEED));
     //START UP FLYWHEEL
         //It takes approx 2 seconds to get to full speed
         auxController.y().whileTrue(shooterSub
@@ -148,14 +152,15 @@ public class RobotContainer {
     //PASS
         //untested, currently this just sets it to max, takes approx 4 seconds to reach
         auxController.rightTrigger().whileTrue(shooterSub
-            .runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, 
-                                Constants.SHOOTER_ROLLER_2_SPEED, 
+            .runShooterWheels(Constants.PASSING_ROLLER_1_SPEED, 
+                                Constants.PASSING_ROLLER_2_SPEED, 
                                 Constants.PASSING_FLYWHEEL_SPEED)
                 .alongWith(intermediate.Spin(Constants.INTERMEDIATE_SPEED)));
     //INTAKE TOGGLE
         auxController.a().onTrue(intakeTilt.toggleRotate());
     //INTAKE UP TO PUSH BALLS IN
-        controller.x().onTrue(intakeTilt.autoTimeout());
+        //controller.x().onTrue(intakeTilt.autoTimeout());
+        controller.x().whileTrue(intakeTilt.print());
     //INTAKE PULSE
         //I want to work on this, perhaps monday(4/25)?
         //Low priority

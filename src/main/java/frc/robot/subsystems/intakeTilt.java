@@ -17,9 +17,12 @@ public class intakeTilt extends SubsystemBase {
   public TalonFX tiltMotor = new TalonFX(Constants.INTAKE_TILT_MOTOR);
   public DutyCycleEncoder encoder = new DutyCycleEncoder(Constants.INTAKE_TILT_ENCODER);
 
-  public double maxRotateSpeed = 1;
+  public double maxRotateSpeed = 5;
 
-  public PIDController PID = new PIDController(6,0,0);
+  //tested and didnt work: p 6-20, increasing d slowly\
+  //20 is pretty good
+  //slight overshoot start ~65
+  public PIDController PID = new PIDController(100,0,0);
   public RotationPositions motorState = RotationPositions.up;
   public RotationPositions autoMotorState = RotationPositions.slightlyUp;
   public Trigger positionReached = new Trigger(() -> Math.abs(getEncoderValue() - motorState.position) < 0.01);
@@ -34,8 +37,8 @@ public class intakeTilt extends SubsystemBase {
   }
   public enum RotationPositions{
     //ADJUSTED DO NOT USE DIRECT ENCODER VALUE
-    up(0.32), //
-    down(0.65),
+    up(0.43), //0.4326
+    down(0.83), //0.82
     pulseUp(0.31),
     pulseDown(0.41),
     slightlyUp(0.55);
@@ -44,6 +47,11 @@ public class intakeTilt extends SubsystemBase {
     RotationPositions(double pos){
       position = pos;
     }
+  }
+  public Command print(){
+    return runOnce(()->{
+      System.out.println("Tilt Encoder" + getEncoderValue());
+    });
   }
   public double getEncoderValue(){
     //ADJUSTED DO NOT USE DIRECT ENCODER VALUE
@@ -81,9 +89,16 @@ public class intakeTilt extends SubsystemBase {
           motorState = RotationPositions.up;
       }}
     }).andThen(run(()->{
-        System.out.println("rotating");
+        System.out.println("Rotating with setpoint of " + motorState.position 
+            + " and a current position of " 
+            + getEncoderValue() 
+            + " and a target speed of " + PID.calculate(getEncoderValue(), motorState.position)
+            + " and a true speed of " + getRotateOutput());
         tiltMotor.set(-getRotateOutput());
-    })).until(positionReached);
+    })).until(positionReached)
+    .andThen(runOnce(()->{
+      System.out.println("Position Reached");
+    }));
   }
   // public Command ballsIn() {
   //   return run(()->{

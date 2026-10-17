@@ -17,8 +17,9 @@ public class Constants {
         public static int INTERMEDIATE_MOTOR = 24;
 
         public static int INTAKE_TILT_MOTOR = 14;
+        //black white red
         public static int INTAKE_TILT_ENCODER = 9;
-        public static int INTAKE_SPIN_MOTOR = 16;
+        public static int INTAKE_SPIN_MOTOR = 21;
     //CURRENT LIMITS
         public static double FLYWHEEL_CURRENT_LIMIT = 25;
         public static double SHOOTER_ROLLER_CURRENT_LIMIT = 25;
@@ -36,4 +37,6 @@ public class Constants {
         public static double SHOOTER_FLYWHEEL_SPEED = 50;
         public static double START_FLYWHEEL_SPEED = 50;
         public static double PASSING_FLYWHEEL_SPEED = 100;
+        public static double PASSING_ROLLER_1_SPEED = 0.4;
+        public static double PASSING_ROLLER_2_SPEED = 0.6;
 }
