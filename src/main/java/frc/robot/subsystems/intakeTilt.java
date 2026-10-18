@@ -38,7 +38,7 @@ public class intakeTilt extends SubsystemBase {
   public enum RotationPositions{
     //ADJUSTED DO NOT USE DIRECT ENCODER VALUE
     up(0.43), //0.4326
-    down(0.83), //0.82
+    down(0.81), //0.82
     pulseUp(0.31),
     pulseDown(0.41),
     slightlyUp(0.55);

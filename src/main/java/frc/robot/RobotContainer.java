@@ -56,7 +56,7 @@ import frc.robot.subsystems.intakeTilt.RotationPositions;
 @SuppressWarnings("unused")
 
 public class RobotContainer {
-
+    
     private PathPlannerAuto auto;
     private final CommandJoystick buttonBoard = new CommandJoystick(Constants.BUTTON_BOARD_PORT);
     private final CommandXboxController controller = new CommandXboxController(Constants.MAIN_CONTROLLER_PORT);
@@ -66,13 +66,13 @@ public class RobotContainer {
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     
     /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.RobotCentric robotDrive = new SwerveRequest.RobotCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate *0.1)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+        private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+                .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+                .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+        private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+        private final SwerveRequest.RobotCentric robotDrive = new SwerveRequest.RobotCentric()
+                .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate *0.1)
+                .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -91,6 +91,7 @@ public class RobotContainer {
     
     public RobotContainer() {
 
+        { //auto stuff
         drivetrain.ConfigureAutoBuilder();
         NamedCommands.registerCommand("shoot", shooterSub.runShooterWheels(Constants.SHOOTER_ROLLER_1_SPEED, Constants.SHOOTER_ROLLER_2_SPEED, Constants.SHOOTER_FLYWHEEL_SPEED * 1));
         NamedCommands.registerCommand("rev", shooterSub.revFlyWheel(Constants.SHOOTER_FLYWHEEL_SPEED * 1));
@@ -105,14 +106,18 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
         autoChooser.setDefaultOption("Disruptor Auto 1", new PathPlannerAuto("Disruptor Auto 1"));
+        }
         configureBindings();
     }
+    
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
     private void configureBindings() {
     //DEFAULT SWERVE
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive left with negative X (left)
+                drive.withVelocityX(controller.getLeftY() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(controller.getLeftX() * Climby.constrain(controller.getLeftTriggerAxis()+0.5, 0 ,1) * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-controller.getRightX() * Climby.constrain(controller.getLeftTriggerAxis()+0.7, 0 ,1) * MaxAngularRate))); // Drive counterclockwise with negative X (left)
 
     //RESET GYRO
@@ -127,12 +132,12 @@ public class RobotContainer {
     //AUTO AIM
         //This works if the robot knows approx where it is on the field based on the most recent vision measuments
         //it can align for red side, not sure about blue side, this might be somthing you have to play around with on saturday (4/25)
-        controller.b().whileTrue(
-            AutoBuilder.pathfindToPose(
-                new Pose2d(15.11, 4, Rotation2d.fromDegrees(180)), //Target Pose
-                new PathConstraints(2.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)),
-                0)
-            );
+            // controller.b().whileTrue(
+            //     AutoBuilder.pathfindToPose(
+            //         new Pose2d(-1.16, 1.83, Rotation2d.fromDegrees(0)), //Target Pose
+            //         new PathConstraints(2.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720)),
+            //         0)
+            //     );
     //SHOOT
         //Shoot once flywheel is up to speed, we can automate it later if we have time, but for now its manual
         auxController.leftTrigger().whileTrue(shooterSub
@@ -140,45 +145,23 @@ public class RobotContainer {
                                 Constants.SHOOTER_ROLLER_2_SPEED, 
                                 Constants.SHOOTER_FLYWHEEL_SPEED)
                 .alongWith(intermediate.Spin(Constants.INTERMEDIATE_SPEED)));
-    //SUPER EVIL INTERMEDIATE BUTTON
-        //spins just the intermediate, use for testing, maybe delete later?
-        auxController.x().whileTrue(
-            intermediate.Spin(Constants.INTERMEDIATE_SPEED));
     //START UP FLYWHEEL
         //It takes approx 2 seconds to get to full speed
         auxController.y().whileTrue(shooterSub
             .runShooterWheels(0, 0, 
                             Constants.START_FLYWHEEL_SPEED));
-    //PASS
-        //untested, currently this just sets it to max, takes approx 4 seconds to reach
-        auxController.rightTrigger().whileTrue(shooterSub
-            .runShooterWheels(Constants.PASSING_ROLLER_1_SPEED, 
-                                Constants.PASSING_ROLLER_2_SPEED, 
-                                Constants.PASSING_FLYWHEEL_SPEED)
-                .alongWith(intermediate.Spin(Constants.INTERMEDIATE_SPEED)));
     //INTAKE TOGGLE
-        auxController.a().onTrue(intakeTilt.toggleRotate());
-    //INTAKE UP TO PUSH BALLS IN
-        //controller.x().onTrue(intakeTilt.autoTimeout());
-        controller.x().whileTrue(intakeTilt.print());
-    //INTAKE PULSE
-        //I want to work on this, perhaps monday(4/25)?
-        //Low priority
-        //auxController.x().whileTrue(intakeTilt.Pulse());
-    //INTAKE SPIN
-        auxController.b().whileTrue(intakeSpin.spin(Constants.INTAKE_SPIN_SPEED));
+        controller.a().onTrue(intakeTilt.toggleRotate());
+        //controller.x().whileTrue(intakeTilt.print());
     //MANUAL INTAKE TILT
         //UP
         auxController.rightBumper().whileTrue(intakeTilt.manualIntake(Constants.MANUAL_TILT_SPEED));
         //DOWN
         auxController.leftBumper().whileTrue(intakeTilt.manualIntake(-Constants.MANUAL_TILT_SPEED));
-    //REVERSE REVERSE
-        //This wont work correctly rn, its a quick fix tho. I'll do it on monday.
-        auxController.povUp().whileTrue((shooterSub.runShooterWheels(Constants.REVERSE_SHOOTER_SPEED, 
-                                                                    Constants.REVERSE_SHOOTER_SPEED, 
-                                                                    Constants.REVERSE_SHOOTER_SPEED)
-                            .alongWith(intermediate.Spin(-Constants.INTERMEDIATE_SPEED))));
-
+        
+    //INTAKE SPIN
+        controller.b().whileTrue(intakeSpin.spin(Constants.INTAKE_SPIN_SPEED));
+    
     //what does any of this do? Who knows. I'm not gonna touch it tho
         {final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
